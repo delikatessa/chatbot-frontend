@@ -1,0 +1,19 @@
+{
+  "name": "msbot",
+  "version": "0.0.0",
+  "description": "msbot",
+  "main": "index.js",
+  "license": "ISC",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": {
+    "name": "tessa"
+  },
+  "dependencies": {
+    "botbuilder": "^3.2.3",
+    "restify": "^4.1.1",
+    "youtube-search": "^1.0.6"
+  }
+}
