@@ -7,8 +7,8 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 });
 
 var connector = new builder.ChatConnector({
-    appId: '35f10801-e6e8-4bd3-a327-32f6ab3dc733',//process.env.MICROSOFT_APP_ID,
-    appPassword: 'vKEen7ZkpGY7jT2och6qumD'//process.env.MICROSOFT_APP_PASSWORD
+    appId: '6efc2601-344a-4e6b-a942-6a4bc8475e74',//process.env.MICROSOFT_APP_ID,
+    appPassword: 'kxBVpkV8yOCnddhf1ctv5iZ'//process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
