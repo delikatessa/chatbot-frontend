@@ -14,13 +14,15 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function (session) {
-    session.send("Hi " + session.message.user.name + ", I'm your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
+    session.send("Hi **" + session.message.user.name + "**, I’m your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you’re interested in and I’ll give you some fitting suggestions.");
+    session.conversationData.lastSendTime = session.lastSendTime;
     session.beginDialog('/search');
 });
 
 bot.dialog('/search', [
     function (session) {
-        builder.Prompts.choice(session, "How would you like to get started?", ["Search", "Inspire me"]);
+        var msg = "How would you like to get started?";
+        builder.Prompts.choice(session, msg, ["Search", "Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results, next) {
         if (results.response.entity === "Inspire me") {
@@ -55,7 +57,7 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on this topic?";
             }
-            builder.Prompts.choice(session, msg, ["Sure", "I'm good"]);
+            builder.Prompts.choice(session, msg, ["Sure", "I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
@@ -78,7 +80,8 @@ bot.dialog('/more', [
 
 bot.dialog('/finish', [
     function (session) {
-        builder.Prompts.choice(session, "Is there anything else you'd like to do?", ["Sure", "I'm good"]);
+        var msg = "Is there anything else you’d like to do?";
+        builder.Prompts.choice(session, msg, ["Sure", "I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity === "Sure") {
@@ -89,6 +92,14 @@ bot.dialog('/finish', [
         }
     }
 ]);
+
+function GetRetryPrompt(session, msg) {
+    return [
+        "Sorry **" + +session.message.user.name + "**, I don't understand gibberish...\n\n" + msg,
+        "Your wordsmith skills are just too much for me! I didn’t get that.\n\n" + msg,
+        "Oh stop it! I’m blushing. Or did I get that wrong?\n\n" + msg,
+        "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n" + msg];
+}
 
 var MAX_RESULTS = 3;
 
@@ -155,7 +166,7 @@ function Search(session, next) {
                 attachments.push(card);
             }
             if (results.length === 0) {
-                session.send("Sorry " + session.message.user.name + ", I couldn't find anything.");
+                session.send("Sorry **" + session.message.user.name + "**, I couldn't find anything.");
             } else {
                 session.conversationData.found = true;
                 var reply = new builder.Message(session)
@@ -171,3 +182,19 @@ function Search(session, next) {
 function Random(low, high) {
     return Math.floor(Math.random() * (high - low + 1) + low);
 }
+
+bot.use({
+    botbuilder: (session, next) => {
+        var last = session.conversationData.lastSendTime;
+        var now = Date.now();
+        var diff = moment.duration(now - last).asHours();
+        if (last == undefined || diff > 1) {
+            session.userData = {};
+            session.conversationData = {};
+            session.beginDialog('/');
+        } else {
+            session.conversationData.lastSendTime = session.lastSendTime;
+            next();
+        }
+    }
+});
