@@ -1,7 +1,7 @@
 {
-  "name": "msbot",
+  "name": "ideabot",
   "version": "0.0.0",
-  "description": "msbot",
+  "description": "ideabot",
   "main": "index.js",
   "license": "ISC",
   "scripts": {
@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "author": {
-    "name": "tessa"
+    "name": "Tatyana Sandanova"
   },
   "dependencies": {
     "botbuilder": "^3.2.3",
