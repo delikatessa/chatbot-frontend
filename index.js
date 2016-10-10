@@ -90,9 +90,10 @@ bot.dialog('/finish', [
     }
 ]);
 
+var MAX_RESULTS = 3;
+
 function Search(session, next) {
     var youtube = require('youtube-search');
-    //NOTE: Search results are constrained to a maximum of 500 videos if your request specifies a value for the channelId parameter and sets the type parameter value to video
     var iteration;
     var searchTerm;
     if (session.conversationData.discover) {
@@ -102,19 +103,26 @@ function Search(session, next) {
         searchTerm = session.conversationData.searchTerm;
         iteration = session.conversationData.searchIteration;
     }
-    var order = 'relevance';
+    var order;
+    var maxResults;
     if (session.conversationData.discover) {
         var orders = ['date', 'rating', 'relevance', 'title', 'videoCount', 'viewCount'];
         order = orders[Random(0, 5)];
+        maxResults = Random(MAX_RESULTS, 50);
+    } else {
+        order = 'relevance';
+        maxResults = MAX_RESULTS * iteration;
     }
+    //https://developers.google.com/youtube/v3/docs/search/list
     var opts = {
-        maxResults: 3 * iteration,
+        maxResults: maxResults,
         key: 'AIzaSyA491fhVfZBa5qZPBQx6zjAn1bmc4SRkjY',
         part: 'snippet',
         order: order,
         chart: 'mostPopular',
         channelId: 'UCsT0YIqwnpJCM-mx7-gSA4Q',
-        type: 'video'
+        type: 'video',
+        relevanceLanguage: 'en'
     };
     youtube(searchTerm, opts, function (err, results) {
         if (err) {
@@ -122,8 +130,19 @@ function Search(session, next) {
             return;
         }
         if (results) {
-            if (iteration > 1 && results.length > 3 * (iteration - 1)) {
-                results = results.slice(3 * (iteration - 1));
+            if (session.conversationData.discover) {
+                var results2 = [];
+                var idxs = [];
+                while (results2.length < MAX_RESULTS) {
+                    var idx = Random(1, maxResults) - 1;
+                    if (idxs.indexOf(idx) === -1) {
+                        results2.push(results[idx]);
+                        idxs.push(idx);
+                    }
+                }
+                results = results2;
+            } else if (iteration > 1 && results.length > MAX_RESULTS * (iteration - 1)) {
+                results = results.slice(MAX_RESULTS * (iteration - 1));
             }
             var attachments = [];
             for (var i = 0, len = results.length; i < len; i++) {
@@ -131,7 +150,6 @@ function Search(session, next) {
                 var card = new builder.ThumbnailCard(session)
                     .title(result.title)
                     .tap(builder.CardAction.openUrl(session, result.link))
-
                     .buttons([builder.CardAction.openUrl(session, result.link, 'Watch now')])
                     .images([builder.CardImage.create(session, result.thumbnails.high.url)]);
                 attachments.push(card);
