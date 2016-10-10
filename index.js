@@ -1,5 +1,7 @@
 var builder = require('botbuilder');
 var restify = require('restify');
+var moment = require('moment');
+var youtube = require('youtube-search');
 
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -103,8 +105,7 @@ function GetRetryPrompt(session, msg) {
 
 var MAX_RESULTS = 3;
 
-function Search(session, next) {
-    var youtube = require('youtube-search');
+function Search(session, next) {    
     var iteration;
     var searchTerm;
     if (session.conversationData.discover) {
