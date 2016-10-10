@@ -14,23 +14,23 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function (session) {
-    session.send("Hello! I am TEDxVienna bot and I can find the best TED talks for you.");
+    session.send("Hi " + session.message.user.name + ", I’m your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you’re interested in and I’ll give you some fitting suggestions.");
     session.beginDialog('/search');
 });
 
 bot.dialog('/search', [
     function (session) {
-        builder.Prompts.choice(session, "So what would you like to do?", ["Search", "Inspire me!"]);
+        builder.Prompts.choice(session, "How would you like to get started?", ["Search", "Inspire me"]);
     },
     function (session, results, next) {
-        if (results.response.entity === "Inspire me!") {
+        if (results.response.entity === "Inspire me") {
             session.conversationData.discover = true;
             session.userData.discoverIteration = 1;
             next();
         } else {
             session.conversationData.discover = false;
             session.conversationData.searchIteration = 1;
-            builder.Prompts.text(session, "What would you like to watch?");
+            builder.Prompts.text(session, "Ok, what are you interested in?");
         }
     },
     function (session, results, next) {
@@ -39,7 +39,7 @@ bot.dialog('/search', [
         }
         Search(session, function () {
             next();
-        });  
+        });
     },
     function (session) {
         session.beginDialog('/more');
@@ -51,22 +51,22 @@ bot.dialog('/more', [
         if (session.conversationData.found) {
             var msg;
             if (session.conversationData.discover) {
-                msg = "Need more inspiration?";
+                msg = "Would you like to get more inspiration?";
             } else {
-                msg = "Would you like to see more search results?";
+                msg = "Would you like to get more inspiration on this topic?";
             }
-            builder.Prompts.choice(session, msg, ["Yes, please!", "No, thanks."]);
+            builder.Prompts.choice(session, msg, ["Sure", "I'm good"]);
         } else {
             session.beginDialog('/finish');
         }
     },
-    function(session, results) {
-        if (results.response.entity === "Yes, please!") {
+    function (session, results) {
+        if (results.response.entity === "Sure") {
             if (session.conversationData.discover) {
                 session.userData.discoverIteration++;
             } else {
-                session.conversationData.searchIteration++;    
-            }            
+                session.conversationData.searchIteration++;
+            }
             Search(session, function () {
                 session.replaceDialog('/more', { reprompt: true });
             });
@@ -78,13 +78,13 @@ bot.dialog('/more', [
 
 bot.dialog('/finish', [
     function (session) {
-        builder.Prompts.choice(session, "Can I do something else for you?", ["Yes, please!", "No, thanks."]);
+        builder.Prompts.choice(session, "Is there anything else you’d like to do?", ["Sure", "I'm good"]);
     },
-    function(session, results) {
-        if (results.response.entity === "Yes, please!") {
+    function (session, results) {
+        if (results.response.entity === "Sure") {
             session.beginDialog('/search');
         } else {
-            session.send("Thank you for using our bot. Have a nice day!");
+            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon!");
             session.endConversation();
         }
     }
@@ -104,10 +104,11 @@ function Search(session, next) {
     }
     var order = 'relevance';
     if (session.conversationData.discover) {
-        order = GetRandomOrder();
+        var orders = ['date', 'rating', 'relevance', 'title', 'videoCount', 'viewCount'];
+        order = orders[Random(0, 5)];
     }
     var opts = {
-        maxResults: 3*iteration,
+        maxResults: 3 * iteration,
         key: 'AIzaSyA491fhVfZBa5qZPBQx6zjAn1bmc4SRkjY',
         part: 'snippet',
         order: order,
@@ -122,7 +123,7 @@ function Search(session, next) {
         }
         if (results) {
             if (iteration > 1 && results.length > 3 * (iteration - 1)) {
-                   results = results.slice(3 * (iteration - 1));
+                results = results.slice(3 * (iteration - 1));
             }
             var attachments = [];
             for (var i = 0, len = results.length; i < len; i++) {
@@ -131,13 +132,12 @@ function Search(session, next) {
                     .title(result.title)
                     .tap(builder.CardAction.openUrl(session, result.link))
 
-                    .buttons([builder.CardAction.openUrl(session, result.link, 'watch')])
+                    .buttons([builder.CardAction.openUrl(session, result.link, 'Watch now')])
                     .images([builder.CardImage.create(session, result.thumbnails.high.url)]);
                 attachments.push(card);
             }
             if (results.length === 0) {
-                session.conversationData.found = false;
-                session.send("Sorry, we didn't find anything.");
+                session.send("Sorry " + session.message.user.name + ", I couldn't find anything.");
             } else {
                 session.conversationData.found = true;
                 var reply = new builder.Message(session)
@@ -150,22 +150,6 @@ function Search(session, next) {
     });
 }
 
-function GetRandomOrder() {
-    var n = Math.random() % 6;
-    switch (n) {
-        case 0:
-            return 'date';
-        case 1:
-            return 'rating';
-        case 2:
-            return 'relevance';
-        case 3:
-            return 'title';
-        case 4:
-            return 'videoCount';
-        case 5:
-            return 'viewCount';
-        default:
-            return 'relevance';
-    }
+function Random(low, high) {
+    return Math.floor(Math.random() * (high - low + 1) + low);
 }
