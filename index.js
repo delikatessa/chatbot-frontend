@@ -16,7 +16,7 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function (session) {
-    session.send("Hi *" + session.message.user.name + "*, I'm your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
+    session.send("Hi " + GetUserName(session) + ", I'm your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
     session.conversationData.lastSendTime = session.lastSendTime;
     session.beginDialog('/search');
 });
@@ -97,7 +97,7 @@ bot.dialog('/finish', [
 
 function GetRetryPrompt(session, msg) {
     return [
-        "Sorry *" + session.message.user.name + "*, I don't understand gibberish...\n\n" + msg,
+        "Sorry " + GetUserName(session) + ", I don't understand gibberish...\n\n" + msg,
         "Your wordsmith skills are just too much for me! I didn't get that.\n\n" + msg,
         "Oh stop it! I'm blushing. Or did I get that wrong?\n\n" + msg,
         "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n" + msg];
@@ -105,7 +105,7 @@ function GetRetryPrompt(session, msg) {
 
 var MAX_RESULTS = 3;
 
-function Search(session, next) {    
+function Search(session, next) {
     var iteration;
     var searchTerm;
     if (session.conversationData.discover) {
@@ -167,7 +167,7 @@ function Search(session, next) {
                 attachments.push(card);
             }
             if (results.length === 0) {
-                session.send("Sorry *" + session.message.user.name + "*, I couldn't find anything.");
+                session.send("Sorry " + GetUserName(session) + ", I couldn't find anything.");
             } else {
                 session.conversationData.found = true;
                 var reply = new builder.Message(session)
@@ -182,6 +182,10 @@ function Search(session, next) {
 
 function Random(low, high) {
     return Math.floor(Math.random() * (high - low + 1) + low);
+}
+
+function GetUserName(session) {
+    return session.message.user.name.match(/([^\s]+)/i)[0];
 }
 
 bot.use({
