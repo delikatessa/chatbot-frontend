@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "botbuilder": "^3.2.3",
+    "moment": "^2.15.1",
     "restify": "^4.1.1",
-    "youtube-search": "^1.0.6",
-    "moment": "^2.15.1"
+    "youtube-search": "^1.0.6"    
   }
 }
