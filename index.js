@@ -168,6 +168,7 @@ function Search(session, next) {
             }
             if (results.length === 0) {
                 session.send("Sorry " + GetUserName(session) + ", I couldn't find anything.");
+                session.conversationData.found = false;
             } else {
                 session.conversationData.found = true;
                 var reply = new builder.Message(session)
