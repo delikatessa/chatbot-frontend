@@ -78,7 +78,7 @@ bot.dialog('/more', [
 
 bot.dialog('/finish', [
     function (session) {
-        builder.Prompts.choice(session, "Is there anything else you’d like to do?", ["Sure", "I'm good"]);
+        builder.Prompts.choice(session, "Is there anything else you'd like to do?", ["Sure", "I'm good"]);
     },
     function (session, results) {
         if (results.response.entity === "Sure") {
