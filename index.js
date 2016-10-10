@@ -14,7 +14,7 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function (session) {
-    session.send("Hi **" + session.message.user.name + "**, I’m your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you’re interested in and I’ll give you some fitting suggestions.");
+    session.send("Hi **" + session.message.user.name + "**, I'm your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
     session.conversationData.lastSendTime = session.lastSendTime;
     session.beginDialog('/search');
 });
@@ -80,7 +80,7 @@ bot.dialog('/more', [
 
 bot.dialog('/finish', [
     function (session) {
-        var msg = "Is there anything else you’d like to do?";
+        var msg = "Is there anything else youâ€™d like to do?";
         builder.Prompts.choice(session, msg, ["Sure", "I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
@@ -96,8 +96,8 @@ bot.dialog('/finish', [
 function GetRetryPrompt(session, msg) {
     return [
         "Sorry **" + +session.message.user.name + "**, I don't understand gibberish...\n\n" + msg,
-        "Your wordsmith skills are just too much for me! I didn’t get that.\n\n" + msg,
-        "Oh stop it! I’m blushing. Or did I get that wrong?\n\n" + msg,
+        "Your wordsmith skills are just too much for me! I didnâ€™t get that.\n\n" + msg,
+        "Oh stop it! Iâ€™m blushing. Or did I get that wrong?\n\n" + msg,
         "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n" + msg];
 }
 
