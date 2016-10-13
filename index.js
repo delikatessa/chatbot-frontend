@@ -190,7 +190,7 @@ function GetUserName(session) {
 }
 
 bot.use({
-    botbuilder: (session, next) => {
+    botbuilder: function (session, next) {
         var last = session.conversationData.lastSendTime;
         var now = Date.now();
         var diff = moment.duration(now - last).asHours();
