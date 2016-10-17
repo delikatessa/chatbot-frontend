@@ -15,12 +15,29 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
+bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
+bot.beginDialogAction('help', '/help', { matches: /^help/i });
+bot.beginDialogAction('start', '/search', { matches: /^start/i });
+bot.beginDialogAction('thumbup', '/thumbup', { matches: /^👍/i });
+
 bot.dialog('/', function (session) {
     session.send("Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
     session.conversationData.lastSendTime = session.lastSendTime;
     session.userData.firstRun = true;
     session.beginDialog('/search');
 });
+
+bot.dialog('/help', [
+    function (session) {
+        session.endDialog("Global commands that are available anytime:  \n\n* start - start a new search.  \n* bye - end this conversation.  \n* help - display these commands.");
+    }
+]);
+
+bot.dialog('/thumbup', [
+    function (session) {
+        session.endDialog("👍");
+    }
+]);
 
 bot.dialog('/search', [
     function (session) {
@@ -99,6 +116,13 @@ bot.dialog('/finish', [
             session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
             session.endConversation();
         }
+    }
+]);
+
+bot.dialog('/goodbye', [
+    function (session) {
+        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
+        session.endConversation();
     }
 ]);
 
