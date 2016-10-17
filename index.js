@@ -121,7 +121,9 @@ bot.dialog('/more', [
         }
     },
     function (session, results) {
-        if (results.response.entity.indexOf("Sure") !== -1) {
+        if (results.response.entity.indexOf("No") !== -1) {
+            session.beginDialog('/finish');
+        } else {
             if (session.conversationData.discover) {
                 session.userData.discoverIteration++;
             } else {
@@ -130,8 +132,6 @@ bot.dialog('/more', [
             Search(session, function () {
                 session.replaceDialog('/more', { reprompt: true });
             });
-        } else {
-            session.beginDialog('/finish');
         }
     }
 ]);
