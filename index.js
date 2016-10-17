@@ -24,7 +24,7 @@ bot.beginDialogAction('thumbup', '/thumbup', { matches: /^👍/i });
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
     if (typeof session.userData.firstRun === 'undefined') {
-        msg += "I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        msg += "I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 💡🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
     } else {
         msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas 💡 for you!";
     }
@@ -36,7 +36,7 @@ bot.dialog('/', function (session) {
 
 bot.dialog('/about', [
     function (session) {
-        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 💡🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
         session.endDialog(msg);
     }
 ]);
@@ -66,11 +66,11 @@ bot.dialog('/start', [
         }
         builder.Prompts.choice(session, msg, ["🔎 Search", "💡 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
-    function (session, results, next) {
+    function (session, results) {
         if (results.response.entity.indexOf("Inspire") !== -1) {
-            session.beginDialog('/inspire')
+            session.beginDialog('/inspire');
         } else {
-            session.beginDialog('/search')
+            session.beginDialog('/search');
         }
     }
 ]);
@@ -115,7 +115,7 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on the last topic?";
             }
-            builder.Prompts.choice(session, msg, ["👍 Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
@@ -139,7 +139,7 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, ["👍 Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
