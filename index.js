@@ -115,7 +115,7 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on the last topic?";
             }
-            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["Sure 👍", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
@@ -139,7 +139,7 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, ["Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["Yes 👍", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
