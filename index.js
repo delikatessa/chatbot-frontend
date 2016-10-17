@@ -21,7 +21,13 @@ bot.beginDialogAction('start', '/search', { matches: /^start/i });
 bot.beginDialogAction('thumbup', '/thumbup', { matches: /^👍/i });
 
 bot.dialog('/', function (session) {
-    session.send("Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
+    var msg = "Hi " + GetUserName(session) + ", ";
+    if (typeof session.userData.firstRun === 'undefined') {
+        msg += "I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+    } else {
+        msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas 💡 for you!";
+    }
+    session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
     session.userData.firstRun = true;
     session.beginDialog('/search');
