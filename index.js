@@ -18,16 +18,23 @@ server.post('/api/messages', connector.listen());
 bot.dialog('/', function (session) {
     session.send("Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
     session.conversationData.lastSendTime = session.lastSendTime;
+    session.userData.firstRun = true;
     session.beginDialog('/search');
 });
 
 bot.dialog('/search', [
     function (session) {
-        var msg = "How would you like to get started?";
+        var msg;
+        if (typeof session.userData.firstRun === 'boolean' && session.userData.firstRun) {
+            msg = "How would you like to get started?";
+            session.userData.firstRun = false;
+        } else {
+            msg = "What would you like to do?";
+        }
         builder.Prompts.choice(session, msg, ["🔎 Search", "💡 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results, next) {
-        if (results.response.entity === "Inspire me") {
+        if (results.response.entity.indexOf("Inspire") !== -1) {
             session.conversationData.discover = true;
             session.userData.discoverIteration = 1;
             next();
@@ -65,7 +72,7 @@ bot.dialog('/more', [
         }
     },
     function (session, results) {
-        if (results.response.entity === "👍 Sure") {
+        if (results.response.entity.indexOf("Sure") !== -1) {
             if (session.conversationData.discover) {
                 session.userData.discoverIteration++;
             } else {
@@ -86,7 +93,7 @@ bot.dialog('/finish', [
         builder.Prompts.choice(session, msg, ["👍 Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
-        if (results.response.entity === "👍 Yes") {
+        if (results.response.entity.indexOf("Yes") !== -1) {
             session.beginDialog('/search');
         } else {
             session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
