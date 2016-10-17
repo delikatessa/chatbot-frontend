@@ -81,28 +81,27 @@ bot.dialog('/search', [
         session.conversationData.searchIteration = 1;
         builder.Prompts.text(session, "Ok, what are you interested in?");
     },
-    function (session, results, next) {
+    function (session, results) {
         session.conversationData.searchTerm = results.response;
         Search(session, function () {
-            next();
+            session.beginDialog('/more');
         });
-    },
-    function (session) {
-        session.beginDialog('/more');
     }
 ]);
 
 bot.dialog('/inspire', [
-    function (session, next) {
+    function (session) {
         session.conversationData.discover = true;
-        session.userData.discoverIteration = 1;
+        var iter = session.userData.discoverIteration;
+        if (typeof iter !== 'undefined' && iter > 1) {
+            session.userData.discoverIteration++;
+        } else {
+            session.userData.discoverIteration = 1;
+        }
         session.conversationData.searchTerm = '';
         Search(session, function () {
-            next();
+            session.beginDialog('/more');
         });
-    },
-    function (session) {
-        session.beginDialog('/more');
     }
 ]);
 
