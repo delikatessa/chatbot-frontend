@@ -115,15 +115,13 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on the last topic?";
             }
-            builder.Prompts.choice(session, msg, ["Sure 👍", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
     },
     function (session, results) {
-        if (results.response.entity.indexOf("No") !== -1) {
-            session.beginDialog('/finish');
-        } else {
+        if (results.response.entity.indexOf("Sure") !== -1) {
             if (session.conversationData.discover) {
                 session.userData.discoverIteration++;
             } else {
@@ -132,6 +130,8 @@ bot.dialog('/more', [
             Search(session, function () {
                 session.replaceDialog('/more', { reprompt: true });
             });
+        } else {
+            session.beginDialog('/finish');
         }
     }
 ]);
@@ -139,7 +139,7 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, ["Yes 👍", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
