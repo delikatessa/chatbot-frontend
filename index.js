@@ -15,9 +15,10 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
-bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
-bot.beginDialogAction('help', '/help', { matches: /^help/i });
-bot.beginDialogAction('start', '/search', { matches: /^start/i });
+bot.beginDialogAction('about', '/about', { matches: /^about/i });
+bot.beginDialogAction('search', '/search', { matches: /^search/i });
+bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i });
+bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
 bot.beginDialogAction('thumbup', '/thumbup', { matches: /^👍/i });
 
 bot.dialog('/', function (session) {
@@ -30,12 +31,13 @@ bot.dialog('/', function (session) {
     session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
     session.userData.firstRun = true;
-    session.beginDialog('/search');
+    session.beginDialog('/start');
 });
 
-bot.dialog('/help', [
+bot.dialog('/about', [
     function (session) {
-        session.endDialog("Global commands that are available anytime:  \n\n* start - start a new search.  \n* bye - end this conversation.  \n* help - display these commands.");
+        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        session.endDialog(msg);
     }
 ]);
 
@@ -45,7 +47,15 @@ bot.dialog('/thumbup', [
     }
 ]);
 
-bot.dialog('/search', [
+bot.dialog('/restart', [
+    function (session) {
+        session.userData = {};
+        session.conversationData = {};
+        session.beginDialog("/");
+    }
+]);
+
+bot.dialog('/start', [
     function (session) {
         var msg;
         if (typeof session.userData.firstRun === 'boolean' && session.userData.firstRun) {
@@ -58,19 +68,35 @@ bot.dialog('/search', [
     },
     function (session, results, next) {
         if (results.response.entity.indexOf("Inspire") !== -1) {
-            session.conversationData.discover = true;
-            session.userData.discoverIteration = 1;
-            next();
+            session.beginDialog('/inspire')
         } else {
-            session.conversationData.discover = false;
-            session.conversationData.searchIteration = 1;
-            builder.Prompts.text(session, "Ok, what are you interested in?");
+            session.beginDialog('/search')
         }
+    }
+]);
+
+bot.dialog('/search', [
+    function (session) {
+        session.conversationData.discover = false;
+        session.conversationData.searchIteration = 1;
+        builder.Prompts.text(session, "Ok, what are you interested in?");
     },
     function (session, results, next) {
-        if (!session.conversationData.discover) {
-            session.conversationData.searchTerm = results.response;
-        }
+        session.conversationData.searchTerm = results.response;
+        Search(session, function () {
+            next();
+        });
+    },
+    function (session) {
+        session.beginDialog('/more');
+    }
+]);
+
+bot.dialog('/inspire', [
+    function (session, next) {
+        session.conversationData.discover = true;
+        session.userData.discoverIteration = 1;
+        session.conversationData.searchTerm = '';
         Search(session, function () {
             next();
         });
@@ -87,7 +113,7 @@ bot.dialog('/more', [
             if (session.conversationData.discover) {
                 msg = "Would you like to get more inspiration?";
             } else {
-                msg = "Would you like to get more inspiration on this topic?";
+                msg = "Would you like to get more inspiration on the last topic?";
             }
             builder.Prompts.choice(session, msg, ["👍 Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
@@ -117,7 +143,7 @@ bot.dialog('/finish', [
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
-            session.beginDialog('/search');
+            session.beginDialog('/start');
         } else {
             session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
             session.endConversation();
@@ -144,12 +170,10 @@ var MAX_RESULTS = 3;
 
 function Search(session, next) {
     var iteration;
-    var searchTerm;
+    var searchTerm = session.conversationData.searchTerm;
     if (session.conversationData.discover) {
-        searchTerm = '';
         iteration = session.userData.discoverIteration;
     } else {
-        searchTerm = session.conversationData.searchTerm;
         iteration = session.conversationData.searchIteration;
     }
     var order;
@@ -236,9 +260,7 @@ bot.use({
         }
         var first = typeof session.userData.firstRun === 'undefined';
         if (!first && (!last || diff > 1)) {
-            session.userData = {};
-            session.conversationData = {};
-            session.beginDialog('/');
+            session.beginDialog('/restart');
         } else {
             session.conversationData.lastSendTime = session.lastSendTime;
             next();
