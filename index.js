@@ -16,7 +16,7 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.dialog('/', function (session) {
-    session.send("Hi " + GetUserName(session) + ", I'm your personal idea scout, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
+    session.send("Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TED and TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.");
     session.conversationData.lastSendTime = session.lastSendTime;
     session.beginDialog('/search');
 });
@@ -24,7 +24,7 @@ bot.dialog('/', function (session) {
 bot.dialog('/search', [
     function (session) {
         var msg = "How would you like to get started?";
-        builder.Prompts.choice(session, msg, ["Search", "Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["🔎 Search", "💡 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results, next) {
         if (results.response.entity === "Inspire me") {
@@ -59,13 +59,13 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on this topic?";
             }
-            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["👍 Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
     },
     function (session, results) {
-        if (results.response.entity === "Sure") {
+        if (results.response.entity === "👍 Sure") {
             if (session.conversationData.discover) {
                 session.userData.discoverIteration++;
             } else {
@@ -83,13 +83,13 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, ["(y) Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["👍 Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
-        if (results.response.entity === "(y) Yes") {
+        if (results.response.entity === "👍 Yes") {
             session.beginDialog('/search');
         } else {
-            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon!");
+            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
             session.endConversation();
         }
     }
