@@ -222,10 +222,14 @@ function GetUserName(session) {
 
 bot.use({
     botbuilder: function (session, next) {
-        var last = session.conversationData.lastSendTime;
-        var now = Date.now();
-        var diff = moment.duration(now - last).asHours();
-        if (last == undefined || diff > 1) {
+        var last = typeof session.conversationData.lastSendTime !== 'undefined';
+        var diff = 0;
+        if (last) {
+            var now = Date.now();
+            diff = moment.duration(now - session.conversationData.lastSendTime).asHours();
+        }
+        var first = typeof session.userData.firstRun === 'undefined';
+        if (!first && (!last || diff > 1)) {
             session.userData = {};
             session.conversationData = {};
             session.beginDialog('/');
