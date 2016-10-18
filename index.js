@@ -165,7 +165,7 @@ function GetRetryPrompt(session, msg) {
         "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n" + msg];
 }
 
-var MAX_RESULTS = 3;
+var MAX_RESULTS = 5;
 
 function Search(session, next) {
     var iteration;
@@ -183,7 +183,7 @@ function Search(session, next) {
         maxResults = Random(MAX_RESULTS, 50);
     } else {
         order = 'relevance';
-        maxResults = MAX_RESULTS * iteration;
+        maxResults = MAX_RESULTS * iteration % 500;
     }
     //https://developers.google.com/youtube/v3/docs/search/list
     var opts = {
