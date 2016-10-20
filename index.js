@@ -24,7 +24,7 @@ bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
     if (typeof session.userData.firstRun === 'undefined') {
-        msg += "I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 💡🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        msg += "I'm your personal idea scout " + unescape('\u1F916') + ", designed to help you find inspiring ideas in the form of TEDx talks from all over the world 💡🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
     } else {
         msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas 💡 for you!";
     }
