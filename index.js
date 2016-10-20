@@ -15,11 +15,14 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
-bot.beginDialogAction('about', '/about', { matches: /^about/i });
-bot.beginDialogAction('search', '/search', { matches: /^search/i });
-bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i });
+bot.use(builder.Middleware.dialogVersion({ version: 1.0, resetCommand: /^restart/i }));
+
+bot.beginDialogAction('help', '/about', { matches: /^help/i });
+bot.beginDialogAction('find', '/search', { matches: /^find/i });
+bot.beginDialogAction('discover', '/inspire', { matches: /^discover/i });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('thumbup', '/thumbup', { matches: /^\ud83d\udc4d/i });
+bot.beginDialogAction('good', '/thumbup', { matches: /^\ud83d\udc4d/i });
+bot.endConversationAction('goodbye', '/goodbye', { matches: /^bye/i });
 
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
@@ -145,8 +148,7 @@ bot.dialog('/finish', [
         if (results.response.entity.indexOf("Yes") !== -1) {
             session.beginDialog('/start');
         } else {
-            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! \ud83d\udc4b");
-            session.endConversation();
+            session.beginDialog('/goodbye');
         }
     }
 ]);
