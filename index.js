@@ -24,7 +24,7 @@ bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
     if (typeof session.userData.firstRun === 'undefined') {
-        msg += "I'm your personal idea scout " + unescape('\ud83e\udd16') + ", designed to help you find inspiring ideas in the form of TEDx talks from all over the world " + unescape('\ud83d\udca1') + unescape('\ud83c\udf0d') + "! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        msg += "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world " + unescape('\ud83d\udca1') + unescape('\ud83c\udf0d') + "! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
     } else {
         msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas " + unescape('\ud83d\udca1') + " for you!";
     }
@@ -115,7 +115,7 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on this topic?";
             }
-            builder.Prompts.choice(session, msg, [unescape('\ud83d\udc4d') + " Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["\ud83d\udc4d Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
