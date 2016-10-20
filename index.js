@@ -19,7 +19,7 @@ bot.beginDialogAction('about', '/about', { matches: /^about/i });
 bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
+bot.beginDialogAction('thumbup', '/thumbup', { matches: /^\ud83d\udc4d/i });
 
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
@@ -115,7 +115,7 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on this topic?";
             }
-            builder.Prompts.choice(session, msg, ["\ud83d\udc4d Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
@@ -139,7 +139,7 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, [unescape('\ud83d\udc4d') + " Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
