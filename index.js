@@ -16,9 +16,9 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
-bot.beginDialogAction('search', '/search', { matches: /^search/i, promptAfterAction: false });
-bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
-bot.beginDialogAction('restart', '/restart', { matches: /^restart/i, promptAfterAction: false });
+bot.beginDialogAction('find', '/search', { matches: /^search/i, promptAfterAction: false });
+bot.beginDialogAction('discover', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
+bot.beginDialogAction('reset', '/restart', { matches: /^restart/i, promptAfterAction: false });
 bot.beginDialogAction('good', '/thumbup', { matches: /^\ud83d\udc4d/i });
 bot.endConversationAction('goodbye', '/goodbye', { matches: /^bye/i });
 
