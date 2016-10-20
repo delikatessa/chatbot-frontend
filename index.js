@@ -24,9 +24,9 @@ bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
     if (typeof session.userData.firstRun === 'undefined') {
-        msg += "I'm your personal idea scout " + unescape('\u1F916') + ", designed to help you find inspiring ideas in the form of TEDx talks from all over the world " + unescape('\u1F4A1\u1F30D') + "! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        msg += "I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 💡🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
     } else {
-        msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas \u1F4A1 for you!";
+        msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas 💡 for you!";
     }
     session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
@@ -36,14 +36,14 @@ bot.dialog('/', function (session) {
 
 bot.dialog('/about', [
     function (session) {
-        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout " + unescape('\u1F916') + ", designed to help you find inspiring ideas in the form of TEDx talks from all over the world " + unescape('\u1F4A1\u1F30D') + "! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 💡🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
         session.endDialog(msg);
     }
 ]);
 
 bot.dialog('/thumbup', [
     function (session) {
-        session.endDialog(unescape('\u1F44D'));
+        session.endDialog("👍");
     }
 ]);
 
@@ -64,7 +64,7 @@ bot.dialog('/start', [
         } else {
             msg = "What would you like to do?";
         }
-        builder.Prompts.choice(session, msg, [unescape('\u1F50E') + " Search", unescape('\u1F4A1') + " Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["🔎 Search", "💡 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Inspire") !== -1) {
@@ -114,7 +114,7 @@ bot.dialog('/more', [
             } else {
                 msg = "Would you like to get more inspiration on this topic?";
             }
-            builder.Prompts.choice(session, msg, [unescape('\u1F44D') + " Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
@@ -138,13 +138,13 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, [unescape('\u1F44D') + "Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
             session.beginDialog('/start');
         } else {
-            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! " + unescape('\u1F44B'));
+            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
             session.endConversation();
         }
     }
@@ -152,7 +152,7 @@ bot.dialog('/finish', [
 
 bot.dialog('/goodbye', [
     function (session) {
-        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! " + unescape('\u1F44B'));
+        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
         session.endConversation();
     }
 ]);
