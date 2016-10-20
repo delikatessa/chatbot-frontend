@@ -15,12 +15,10 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
-bot.use(builder.Middleware.dialogVersion({ version: 1.0, resetCommand: /^restart/i }));
-
-bot.beginDialogAction('help', '/about', { matches: /^help/i });
-bot.beginDialogAction('find', '/search', { matches: /^find/i });
-bot.beginDialogAction('discover', '/inspire', { matches: /^discover/i });
-bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
+bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
+bot.beginDialogAction('search', '/search', { matches: /^search/i, promptAfterAction: false });
+bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
+bot.beginDialogAction('restart', '/restart', { matches: /^restart/i, promptAfterAction: false });
 bot.beginDialogAction('good', '/thumbup', { matches: /^\ud83d\udc4d/i });
 bot.endConversationAction('goodbye', '/goodbye', { matches: /^bye/i });
 
@@ -37,10 +35,10 @@ bot.dialog('/', function (session) {
     session.beginDialog('/start');
 });
 
-bot.dialog('/about', [
+bot.dialog('/greeting', [
     function (session) {
-        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
-        session.endDialog(msg);
+        var greeting = "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        session.endDialog(greeting);
     }
 ]);
 
