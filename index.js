@@ -19,7 +19,7 @@ bot.beginDialogAction('about', '/about', { matches: /^about/i });
 bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('thumbup', '/thumbup', { matches: /^👍/i });
+bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
 
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
