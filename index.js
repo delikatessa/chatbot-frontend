@@ -24,9 +24,9 @@ bot.beginDialogAction('thumbup', '/thumbup', { matches: /^\ud83d\udc4d/i });
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
     if (typeof session.userData.firstRun === 'undefined') {
-        msg += "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world " + unescape('\ud83d\udca1') + unescape('\ud83c\udf0d') + "! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        msg += "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
     } else {
-        msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas " + unescape('\ud83d\udca1') + " for you!";
+        msg += "good to have you back! \u270c I'd love to scout some more TEDx ideas \ud83d\udca1 for you!";
     }
     session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
@@ -36,14 +36,14 @@ bot.dialog('/', function (session) {
 
 bot.dialog('/about', [
     function (session) {
-        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout " + unescape('\ud83e\udd16') + ", designed to help you find inspiring ideas in the form of TEDx talks from all over the world " + unescape('\ud83d\udca1') + unescape('\ud83c\udf0d') + "! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
         session.endDialog(msg);
     }
 ]);
 
 bot.dialog('/thumbup', [
     function (session) {
-        session.endDialog(unescape('\ud83d\udc4d'));
+        session.endDialog("\ud83d\udc4d");
     }
 ]);
 
@@ -64,7 +64,7 @@ bot.dialog('/start', [
         } else {
             msg = "What would you like to do?";
         }
-        builder.Prompts.choice(session, msg, [unescape('\ud83d\udd0e') + " Search", unescape('\ud83d\udca1') + " Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["\ud83d\udd0e Search", "\ud83d\udca1 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Inspire") !== -1) {
@@ -145,7 +145,7 @@ bot.dialog('/finish', [
         if (results.response.entity.indexOf("Yes") !== -1) {
             session.beginDialog('/start');
         } else {
-            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! " + unescape('\ud83d\udc4b'));
+            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! \ud83d\udc4b");
             session.endConversation();
         }
     }
@@ -153,7 +153,7 @@ bot.dialog('/finish', [
 
 bot.dialog('/goodbye', [
     function (session) {
-        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! " + unescape('\ud83d\udc4b'));
+        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! \ud83d\udc4b");
         session.endConversation();
     }
 ]);
