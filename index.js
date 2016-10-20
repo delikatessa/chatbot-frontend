@@ -15,21 +15,18 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
-bot.use(builder.Middleware.dialogVersion({ version: 1.0, resetCommand: /^restart/i }));
-
-bot.beginDialogAction('help', '/about', { matches: /^help/i });
-bot.beginDialogAction('find', '/search', { matches: /^find/i });
-bot.beginDialogAction('discover', '/inspire', { matches: /^discover/i });
+bot.beginDialogAction('about', '/about', { matches: /^about/i });
+bot.beginDialogAction('search', '/search', { matches: /^search/i });
+bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('good', '/thumbup', { matches: /^\ud83d\udc4d/i });
-bot.endConversationAction('goodbye', '/goodbye', { matches: /^bye/i });
+bot.beginDialogAction('thumbup', '/thumbup', { matches: /^👍/i });
 
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
     if (typeof session.userData.firstRun === 'undefined') {
-        msg += "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        msg += "I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
     } else {
-        msg += "good to have you back! \u270c I'd love to scout some more TEDx ideas \ud83d\udca1 for you!";
+        msg += "good to have you back! ✌ I'd love to scout some more TEDx ideas 💡 for you!";
     }
     session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
@@ -39,14 +36,14 @@ bot.dialog('/', function (session) {
 
 bot.dialog('/about', [
     function (session) {
-        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
+        var msg = "Hi " + GetUserName(session) + ", I'm your personal idea scout 🤖, designed to help you find inspiring ideas in the form of TEDx talks from all over the world 🌍! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
         session.endDialog(msg);
     }
 ]);
 
 bot.dialog('/thumbup', [
     function (session) {
-        session.endDialog("\ud83d\udc4d");
+        session.endDialog("👍");
     }
 ]);
 
@@ -67,13 +64,13 @@ bot.dialog('/start', [
         } else {
             msg = "What would you like to do?";
         }
-        builder.Prompts.choice(session, msg, ["\ud83d\udd0e Search", "\ud83d\udca1 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["🔎 Search", "💡 Inspire me"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
-    function (session, results) {
+    function (session, results, next) {
         if (results.response.entity.indexOf("Inspire") !== -1) {
-            session.beginDialog('/inspire');
+            session.beginDialog('/inspire')
         } else {
-            session.beginDialog('/search');
+            session.beginDialog('/search')
         }
     }
 ]);
@@ -84,28 +81,28 @@ bot.dialog('/search', [
         session.conversationData.searchIteration = 1;
         builder.Prompts.text(session, "Ok, what are you interested in?");
     },
-    function (session, results) {
+    function (session, results, next) {
         session.conversationData.searchTerm = results.response;
-        console.log("SEARCH: " + results.response);
         Search(session, function () {
-            session.beginDialog('/more');
+            next();
         });
+    },
+    function (session) {
+        session.beginDialog('/more');
     }
 ]);
 
 bot.dialog('/inspire', [
-    function (session) {
+    function (session, next) {
         session.conversationData.discover = true;
-        var iter = session.userData.discoverIteration;
-        if (typeof iter !== 'undefined' && iter > 1) {
-            session.userData.discoverIteration++;
-        } else {
-            session.userData.discoverIteration = 1;
-        }
+        session.userData.discoverIteration = 1;
         session.conversationData.searchTerm = '';
         Search(session, function () {
-            session.beginDialog('/more');
+            next();
         });
+    },
+    function (session) {
+        session.beginDialog('/more');
     }
 ]);
 
@@ -116,9 +113,9 @@ bot.dialog('/more', [
             if (session.conversationData.discover) {
                 msg = "Would you like to get more inspiration?";
             } else {
-                msg = "Would you like to get more inspiration on this topic?";
+                msg = "Would you like to get more inspiration on the last topic?";
             }
-            builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
+            builder.Prompts.choice(session, msg, ["👍 Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
             session.beginDialog('/finish');
         }
@@ -142,20 +139,21 @@ bot.dialog('/more', [
 bot.dialog('/finish', [
     function (session) {
         var msg = "Is there anything else you’d like to do?";
-        builder.Prompts.choice(session, msg, ["Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
+        builder.Prompts.choice(session, msg, ["👍 Yes", "No, thanks"], { retryPrompt: GetRetryPrompt(session, msg) });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
             session.beginDialog('/start');
         } else {
-            session.beginDialog('/goodbye');
+            session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
+            session.endConversation();
         }
     }
 ]);
 
 bot.dialog('/goodbye', [
     function (session) {
-        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! \ud83d\udc4b");
+        session.send("Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! 👋");
         session.endConversation();
     }
 ]);
@@ -168,7 +166,7 @@ function GetRetryPrompt(session, msg) {
         "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n" + msg];
 }
 
-var MAX_RESULTS = 5;
+var MAX_RESULTS = 3;
 
 function Search(session, next) {
     var iteration;
@@ -186,7 +184,7 @@ function Search(session, next) {
         maxResults = Random(MAX_RESULTS, 50);
     } else {
         order = 'relevance';
-        maxResults = MAX_RESULTS * iteration % 500;
+        maxResults = MAX_RESULTS * iteration;
     }
     //https://developers.google.com/youtube/v3/docs/search/list
     var opts = {
