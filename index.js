@@ -112,7 +112,7 @@ bot.dialog('/more', [
             if (session.conversationData.discover) {
                 msg = "Would you like to get more inspiration?";
             } else {
-                msg = "Would you like to get more inspiration on the last topic?";
+                msg = "Would you like to get more inspiration on this topic?";
             }
             builder.Prompts.choice(session, msg, ["Sure", "No, I'm good"], { retryPrompt: GetRetryPrompt(session, msg) });
         } else {
