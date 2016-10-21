@@ -246,6 +246,10 @@ function GetUserName(session) {
 
 bot.use({
     botbuilder: function (session, next) {
+        var att = session.message.attachments;
+        if (att.length === 1 && att[0].contentType === 'image/png' && att[0].contentUrl.indexOf('369239') !== -1) {
+            session.send("\ud83d\udc4d");
+        }
         var last = typeof session.conversationData.lastSendTime !== 'undefined';
         var diff = 0;
         if (last) {
@@ -257,10 +261,6 @@ bot.use({
             session.beginDialog('/restart');
         } else {
             session.conversationData.lastSendTime = session.lastSendTime;
-            var att = session.message.attachments;
-            if (att.length === 1 && att[0].contentType === 'image/png' && att[0].contentUrl.indexOf('369239') !== -1) {
-                session.send("\ud83d\udc4d");
-            }
             next();
         }
     }
