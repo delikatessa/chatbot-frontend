@@ -19,7 +19,7 @@ bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
 bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('thumbup', '/thumbup', { matches: /^\ud83d\udc4d/i });
+bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
 bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
 
 bot.dialog('/', function (session) {
