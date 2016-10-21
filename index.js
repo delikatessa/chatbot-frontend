@@ -16,11 +16,11 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
-bot.beginDialogAction('find', '/search', { matches: /^search/i, promptAfterAction: false });
+bot.beginDialogAction('find', '/search', { matches: /^search/i });
 bot.beginDialogAction('discover', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
-bot.beginDialogAction('reset', '/restart', { matches: /^restart/i, promptAfterAction: false });
+bot.beginDialogAction('reset', '/restart', { matches: /^restart/i });
 bot.beginDialogAction('good', '/thumbup', { matches: /^\ud83d\udc4d/i });
-bot.endConversationAction('goodbye', '/goodbye', { matches: /^bye/i });
+bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
 
 bot.dialog('/', function (session) {
     var msg = "Hi " + GetUserName(session) + ", ";
@@ -251,7 +251,7 @@ function GetUserName(session) {
 }
 
 bot.use({
-    botbuilder: function (session) {
+    botbuilder: function (session, next) {
         var last = typeof session.conversationData.lastSendTime !== 'undefined';
         var diff = 0;
         if (last) {
@@ -263,6 +263,7 @@ bot.use({
             session.beginDialog('/restart');
         } else {
             session.conversationData.lastSendTime = session.lastSendTime;
+            next();
         }
     }
 });
