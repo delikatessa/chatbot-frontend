@@ -15,7 +15,7 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
-bot.beginDialogAction('about', '/greeting');
+bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
 bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
