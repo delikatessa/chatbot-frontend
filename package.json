@@ -1,6 +1,6 @@
 {
   "name": "ideabot",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "ideabot",
   "main": "index.js",
   "license": "ISC",
@@ -12,7 +12,7 @@
     "name": "Tatyana Sandanova"
   },
   "dependencies": {
-    "botbuilder": "^3.2.3",
+    "botbuilder": "^3.3.3",
     "moment": "^2.15.1",
     "restify": "^4.1.1",
     "youtube-search": "^1.0.6"    
