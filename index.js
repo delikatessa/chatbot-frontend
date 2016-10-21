@@ -31,7 +31,6 @@ bot.dialog('/', function (session) {
     }
     session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
-    session.conversationData.searchHistory = [];
     session.userData.firstRun = true;
     session.beginDialog('/start');
 });
@@ -86,13 +85,6 @@ bot.dialog('/search', [
     },
     function (session, results) {
         session.conversationData.searchTerm = results.response;
-        if (typeof session.conversationData.searchHistory === 'undefined') {
-            session.conversationData.searchHistory = [];
-        }
-        session.conversationData.searchHistory.push(results.response);
-        if (session.conversationdata.searchHistory.length > 10) {
-            session.conversationData.searchHistory.splice(0, 1);
-        }
         console.log("SEARCH: " + results.response);
         Search(session, function () {
             session.beginDialog('/more');
