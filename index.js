@@ -38,7 +38,8 @@ bot.dialog('/', function (session) {
 bot.dialog('/greeting', [
     function (session) {
         var greeting = "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
-        session.endDialog(greeting);
+        session.send(greeting);
+        session.endDialog();
     }
 ]);
 
