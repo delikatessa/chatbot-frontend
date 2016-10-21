@@ -1,0 +1,31 @@
+{
+  "setting_type" : "call_to_actions",
+  "thread_state" : "existing_thread",
+  "call_to_actions":[
+    {
+      "type":"postback",
+      "title":"ℹ️ About",
+      "payload":"action?about"
+    },
+    {
+      "type":"postback",
+      "title":"🔎 Search TEDx talks",
+      "payload":"action?search"
+    },
+    {
+      "type":"postback",
+      "title":"💡 Inspire me",
+      "payload":"action?inspire"
+    },
+    {
+      "type":"web_url",
+      "title":"📖 Disclaimer",
+      "url":"http://www.tedxvienna.at/ideabot-disclaimer"
+    },
+    {
+      "type":"web_url",
+      "title":"👍 Like me",
+      "url":"https://www.facebook.com/ideachatbot"
+    }
+  ]
+}
