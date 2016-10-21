@@ -251,7 +251,7 @@ function GetUserName(session) {
 }
 
 bot.use({
-    botbuilder: function (session, next) {
+    botbuilder: function (session) {
         var last = typeof session.conversationData.lastSendTime !== 'undefined';
         var diff = 0;
         if (last) {
@@ -263,7 +263,6 @@ bot.use({
             session.beginDialog('/restart');
         } else {
             session.conversationData.lastSendTime = session.lastSendTime;
-            next();
         }
     }
 });
