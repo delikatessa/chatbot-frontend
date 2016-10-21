@@ -16,10 +16,10 @@ var bot = new builder.UniversalBot(connector, { persistConversationData: true })
 server.post('/api/messages', connector.listen());
 
 bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
-bot.beginDialogAction('find', '/search', { matches: /^search/i });
-bot.beginDialogAction('discover', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
-bot.beginDialogAction('reset', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('good', '/thumbup', { matches: /^\ud83d\udc4d/i });
+bot.beginDialogAction('search', '/search', { matches: /^search/i });
+bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
+bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
+bot.beginDialogAction('thumbup', '/thumbup', { matches: /^\ud83d\udc4d/i });
 bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
 
 bot.dialog('/', function (session) {
@@ -31,6 +31,7 @@ bot.dialog('/', function (session) {
     }
     session.send(msg);
     session.conversationData.lastSendTime = session.lastSendTime;
+    session.conversationData.searchHistory = [];
     session.userData.firstRun = true;
     session.beginDialog('/start');
 });
@@ -85,6 +86,13 @@ bot.dialog('/search', [
     },
     function (session, results) {
         session.conversationData.searchTerm = results.response;
+        if (typeof session.conversationData.searchHistory === 'undefined') {
+            session.conversationData.searchHistory = [];
+        }
+        session.conversationData.searchHistory.push(results.response);
+        if (session.conversationdata.searchHistory.length > 10) {
+            session.conversationData.searchHistory.splice(0, 1);
+        }
         console.log("SEARCH: " + results.response);
         Search(session, function () {
             session.beginDialog('/more');
