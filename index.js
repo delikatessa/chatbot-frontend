@@ -19,7 +19,6 @@ bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
 bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('thumbup', '/thumbup', { matches: /^3692392632228/i });
 bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
 
 bot.dialog('/', function (session) {
@@ -40,12 +39,6 @@ bot.dialog('/greeting', [
         var greeting = "I'm your personal idea scout \ud83e\udd16, designed to help you find inspiring ideas in the form of TEDx talks from all over the world \ud83d\udca1\ud83c\udf0d! Just enter a topic you're interested in and I'll give you some fitting suggestions.";
         session.send(greeting);
         session.endDialog();
-    }
-]);
-
-bot.dialog('/thumbup', [
-    function (session) {
-        session.endDialog("\ud83d\udc4d");
     }
 ]);
 
@@ -264,6 +257,10 @@ bot.use({
             session.beginDialog('/restart');
         } else {
             session.conversationData.lastSendTime = session.lastSendTime;
+            var att = session.message.attachments;
+            if (att.length === 1 && att[0].contentType === 'image/png' && att[0].contentUrl.indexOf('369239') !== -1) {
+                session.send("\ud83d\udc4d");
+            }
             next();
         }
     }
