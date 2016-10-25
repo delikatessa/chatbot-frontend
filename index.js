@@ -264,6 +264,7 @@ bot.use({
         if (!first && (!last || diff > 1)) {
             session.beginDialog('/restart');
         } else {
+            session.userData.firstRun = first;
             session.conversationData.lastSendTime = session.lastSendTime;
             next();
         }
