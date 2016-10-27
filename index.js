@@ -156,7 +156,7 @@ bot.dialog('/goodbye', [
 
 function GetRetryPrompt(session, msg) {
     return [
-        "Sorry " + GetUserName(session) + ", I don't understand gibberish...\n\n" + msg,
+        "Sorry " + GetUserName(session) + ", I didn't quite get that....\n\n" + msg,
         "Your wordsmith skills are just too much for me! I didn't get that.\n\n" + msg,
         "Oh stop it! I'm blushing. Or did I get that wrong?\n\n" + msg,
         "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n" + msg];
