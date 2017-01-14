@@ -1,7 +1,7 @@
 {
   "name": "ideabot",
   "version": "1.0.0",
-  "description": "ideabot",
+  "description": "TEDxVienna ideabot",
   "main": "index.js",
   "license": "ISC",
   "scripts": {
