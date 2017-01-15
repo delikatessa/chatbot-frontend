@@ -9,8 +9,8 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
 });
 
 var connector = new builder.ChatConnector({
-    appId: '6efc2601-344a-4e6b-a942-6a4bc8475e74',//process.env.MICROSOFT_APP_ID,
-    appPassword: 'kxBVpkV8yOCnddhf1ctv5iZ'//process.env.MICROSOFT_APP_PASSWORD
+    appId: process.env.MICROSOFT_APP_ID,
+    appPassword: process.env.MICROSOFT_APP_PASSWORD
 });
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
@@ -185,7 +185,7 @@ function Search(session, next) {
     //https://developers.google.com/youtube/v3/docs/search/list
     var opts = {
         maxResults: maxResults,
-        key: 'AIzaSyA491fhVfZBa5qZPBQx6zjAn1bmc4SRkjY',
+        key: process.env.GOOGLE_API_KEY,
         part: 'snippet',
         order: order,
         chart: 'mostPopular',
