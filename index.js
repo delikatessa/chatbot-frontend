@@ -186,7 +186,7 @@ function Search(session, next) {
     //https://developers.google.com/youtube/v3/docs/search/list
     var opts = {
         maxResults: maxResults,
-        key: 'AIzaSyA491fhVfZBa5qZPBQx6zjAn1bmc4SRkjY',
+        key: process.env.GOOGLE_API_KEY,
         part: 'snippet',
         order: order,
         chart: 'mostPopular',
