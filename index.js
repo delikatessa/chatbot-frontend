@@ -136,7 +136,8 @@ bot.dialog('/more', [
 
 bot.dialog('/finish', [
     function (session) {
-        builder.Prompts.choice(session, getText(text.start.continue), getText(text.start.buttons), { retryPrompt: getRetryPrompt(session, msg), bargeInAllowed: false });
+        var msg = getText(text.start.continue);
+        builder.Prompts.choice(session, msg, getText(text.start.buttons), { retryPrompt: getRetryPrompt(session, msg), bargeInAllowed: false });
     },
     function (session, results) {
         if (results.response.entity.indexOf("Yes") !== -1) {
@@ -185,7 +186,7 @@ function Search(session, next) {
     //https://developers.google.com/youtube/v3/docs/search/list
     var opts = {
         maxResults: maxResults,
-        key: process.env.GOOGLE_API_KEY,
+        key: 'AIzaSyA491fhVfZBa5qZPBQx6zjAn1bmc4SRkjY',
         part: 'snippet',
         order: order,
         chart: 'mostPopular',
