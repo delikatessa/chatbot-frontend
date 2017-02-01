@@ -21,6 +21,15 @@ bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
 bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
 bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
+bot.beginDialogAction('test', '/test', { matches: /^testtesttest/i });
+
+bot.dialog('/test', function(session) {
+    if (typeof session.message.entities !== "undefined"){
+        for (var i = 0; i < session.message.entities.length; i++){
+            session.Send(session.message.entities[i].type);
+        }
+    }    
+});
 
 bot.dialog('/', function (session) {
     var msg;
