@@ -24,7 +24,7 @@ bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
 bot.beginDialogAction('test', '/test', { matches: /^testtesttest/i });
 
 bot.dialog('/test', function(session) {
-    if (typeof session.message.entities === "undefined"){
+    if (typeof session.message.entities === "undefined" || session.message.entities.length === 0){
         session.send('no entities');
     } else {
         session.send('entities');
