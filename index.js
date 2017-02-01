@@ -25,12 +25,14 @@ bot.beginDialogAction('test', '/test', { matches: /^testtesttest/i });
 
 bot.dialog('/test', function(session) {
     if (typeof session.message.entities !== "undefined"){
+        session.send("entities");
         for (var i = 0; i < session.message.entities.length; i++){
             session.send(session.message.entities[i].type);
         }
     } else {
         session.send("no entities");
     }
+    session.endDialog();
 });
 
 bot.dialog('/', function (session) {
