@@ -6,21 +6,27 @@
     "start": {
 		"first": "How would you like to get started?",
 		"back": "What would you like to do?",
-        "continue": "Is there anything else you’d like to do?",
-        "buttons": ["Yes", "No, thanks"]
+        "replies": [":search: Search", ":bulb: Inspire me"],
+        "choices": ["'search'", "'inspire'"]
 	},
-    "search": { 
-		"menu": [":search: Search", ":bulb: Inspire me"],
+    "restart": {
+        "ask": "Is there anything else you’d like to do?",
+        "replies": ["Yes", "No, thanks"],
+        "choices": ["'yes'", "'no'"]        
+    },
+    "search": {		
 		"topic": "Ok, what are you interested in?",
-		"moreSearch": "Would you like to get more inspiration on this topic?",
-        "moreInspire": "Would you like to get more inspiration?",
-        "noResults": "Sorry {user}, I couldn't find anything.",
-        "buttons": ["Sure", "No, I'm good"],
-        "watch": "Watch now"
-	}, 
+		"watch": "Watch now"        
+	},
+    "continue": {
+        "search": "Would you like to get more inspiration on this topic?",
+        "inspire": "Would you like to get more inspiration?",
+        "replies": ["Sure", "No, I'm good"],
+        "choices": ["'yes'", "'no'"]
+    },
     "end": "Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! :wavinghand:",
     "retryPrompts": [
-		"Sorry {user}, I didn't quite get that....\n\n",
+		"Sorry, I didn't quite get that....\n\n",
 		"Your wordsmith skills are just too much for me! I didn't get that.\n\n",
 		"Oh stop it! I'm blushing. Or did I get that wrong?\n\n",
 		"Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n"
@@ -32,6 +38,19 @@
         "victoryhand": "\u270c",
         "wavinghand": "\ud83d\udc4b",
         "thumbsup": "\ud83d\udc4b",
-        "bulb": "\ud83d\udca1"
+        "bulb": "\ud83d\udca1",
+        "sweat_smile": "\ud83d\ude04"
+    },
+    "syn": {
+        "yes": ["yes", "sure", "ok"],
+        "no": ["no", "i'm good", "nah"],
+        "search": ["search", "find"],
+        "inspire": ["inspire", "discover", "random"]
+    },
+    "error": {
+        "noSearchResults": "Sorry {user}, I couldn't find anything."
+    },
+    "common": {
+        "help": "Sorry, I'm not sure what to do :sweat_smile:. Right now you have the choices {choices}. Please type what you prefer or hit one of the buttons right below."
     }
 }

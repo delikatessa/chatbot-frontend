@@ -1,8 +1,9 @@
 var builder = require('botbuilder');
-var restify = require('restify');
 var moment = require('moment');
-var youtube = require('youtube-search');
+var restify = require('restify');
+var request = require('request');
 var text = require("./text.json");
+var youtube = require('youtube-search');
 
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -16,22 +17,16 @@ var connector = new builder.ChatConnector({
 var bot = new builder.UniversalBot(connector, { persistConversationData: true });
 server.post('/api/messages', connector.listen());
 
-bot.beginDialogAction('about', '/greeting', { matches: /^about/i });
+bot.beginDialogAction('hi', '/', { matches: /^\bhi\b|\bhello\b|\bhey\b|\bhallo\b/i });
+bot.beginDialogAction('about', '/greeting', { matches: /^about|help/i });
 bot.beginDialogAction('search', '/search', { matches: /^search/i });
 bot.beginDialogAction('inspire', '/inspire', { matches: /^inspire/i, promptAfterAction: false });
-bot.beginDialogAction('restart', '/restart', { matches: /^restart/i });
-bot.beginDialogAction('bye', '/goodbye', { matches: /^bye/i });
-bot.beginDialogAction('test', '/test', { matches: /^testtesttest/i });
+bot.beginDialogAction('reset', '/reset', { matches: /^reset/i });
+bot.beginDialogAction('bye', '/goodbye', { matches: /^bye\b/i });
+bot.beginDialogAction('test', '/test', { matches: /^test/i });
 
 bot.dialog('/test', function(session) {
-    if (typeof session.message.entities === "undefined" || session.message.entities.length === 0){
-        session.send('no entities');
-    } else {
-        session.send('entities');
-        for (var i = 0; i < session.message.entities.length; i++){
-            session.send(session.message.entities[i].type);
-        }
-    }
+    session.send(JSON.stringify(session.message.user))
     session.endDialog();
 });
 
@@ -45,7 +40,8 @@ bot.dialog('/', function (session) {
     session.send(msg);
     session.sendTyping();
     session.conversationData.lastSendTime = session.lastSendTime;
-    session.userData.firstRun = true;
+    session.conversationData.retries = 0;
+    session.userData.firstRun = true;    
     session.beginDialog('/start');
 });
 
@@ -58,7 +54,7 @@ bot.dialog('/greeting', [
     }
 ]);
 
-bot.dialog('/restart', [
+bot.dialog('/reset', [
     function (session) {
         session.userData = {};
         session.conversationData = {};
@@ -75,120 +71,162 @@ bot.dialog('/start', [
         } else {
             msg = getText(text.start.back);
         }
-        builder.Prompts.choice(session, msg, getText(text.search.menu), { retryPrompt: getRetryPrompt(session, msg) });
+        sendQuickRepliesMessage(session, msg, getText(text.start.replies));
     },
     function (session, results) {
-        if (results.response.entity.indexOf("Inspire") !== -1) {
-            session.beginDialog('/inspire');
-        } else {
+        if (textContains(results.response, text.syn.search)) {
+            session.conversationData.retries = 0;
             session.beginDialog('/search');
-        }
+        } else if (textContains(results.response, text.syn.inspire)) {
+            session.conversationData.retries = 0;
+            session.beginDialog('/inspire')
+        } else {
+            retry(session, text.start.choices, '/start');
+        }        
     }
 ]);
 
+function retry(session, choices, dialog) {
+    if (session.conversationData.retries === 2) {
+        session.conversationData.retries = 0;
+        sendHelpMessage(session, choices);
+    } else {
+        session.conversationData.retries++;
+        sendRetryPrompt(session);
+    }    
+    session.replaceDialog(dialog, { reprompt: true });
+}
+
+function textContains(input, words) {
+    input = input.toLowerCase();
+    for (var i = 0; i < words.length; ++i) {
+        if (input.indexOf(words[i]) != -1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function sendHelpMessage(session, choices) {
+    var msg = getText(text.common.help, session).replace(/{choices}/g, getText(choices).join(" or "));
+    session.send(msg);
+    session.sendTyping();
+}
+
+var retryPrompts;
+function sendRetryPrompt(session) {
+    if (typeof retryPrompts === 'undefined') {
+        retryPrompts = getText(text.retryPrompts);    
+    }
+    var i = Random(0, retryPrompts.length - 1);
+    session.send(retryPrompts[i]);
+    session.sendTyping();
+}
+
 bot.dialog('/search', [
     function (session) {
-        session.conversationData.discover = false;
+        session.conversationData.inspire = false;
         session.conversationData.searchIteration = 1;
         builder.Prompts.text(session, getText(text.search.topic));
     },
     function (session, results) {
         session.conversationData.searchTerm = results.response;
         console.log("SEARCH: " + results.response);
-        Search(session, function () {
-            session.beginDialog('/more');
+        search(session, function () {
+            session.beginDialog('/continue');
         });
     }
 ]);
 
 bot.dialog('/inspire', [
     function (session) {
-        session.conversationData.discover = true;
-        var iter = session.userData.discoverIteration;
+        session.conversationData.inspire = true;
+        var iter = session.userData.inspireIteration;
         if (typeof iter !== 'undefined' && iter > 1) {
-            session.userData.discoverIteration++;
+            session.userData.inspireIteration++;
         } else {
-            session.userData.discoverIteration = 1;
+            session.userData.inspireIteration = 1;
         }
         session.conversationData.searchTerm = '';
-        Search(session, function () {
-            session.beginDialog('/more');
+        search(session, function () {
+            session.beginDialog('/continue');
         });
     }
 ]);
 
-bot.dialog('/more', [
+bot.dialog('/continue', [
     function (session) {
         if (session.conversationData.found) {
             var msg;
-            if (session.conversationData.discover) {
-                msg = getText(text.search.moreInspire);
+            if (session.conversationData.inspire) {
+                msg = getText(text.continue.inspire);
             } else {
-                msg = getText(text.search.moreSearch);
+                msg = getText(text.continue.search);
             }
-            builder.Prompts.choice(session, msg, getText(text.search.buttons), { retryPrompt: getRetryPrompt(session, msg) });
+            sendQuickRepliesMessage(session, msg, text.continue.replies);
         } else {
-            session.beginDialog('/finish');
+            session.beginDialog('/restart');
         }
     },
     function (session, results) {
-        if (results.response.entity.indexOf("Sure") !== -1) {
-            if (session.conversationData.discover) {
-                session.userData.discoverIteration++;
+        if (textContains(results.response, text.syn.yes)) {
+            session.conversationData.retries = 0;
+            if (session.conversationData.inspire) {
+                session.userData.inspireIteration++;
             } else {
                 session.conversationData.searchIteration++;
             }
-            Search(session, function () {
-                session.replaceDialog('/more', { reprompt: true });
+            search(session, function () {
+                session.replaceDialog('/continue', { reprompt: true });
             });
+        } else if (textContains(results.response, text.syn.no)) {            
+            session.conversationData.retries = 0;
+            session.beginDialog('/restart');
         } else {
-            session.beginDialog('/finish');
+            retry(session, text.continue.choices, '/continue');
         }
     }
 ]);
 
-bot.dialog('/finish', [
+bot.dialog('/restart', [
     function (session) {
-        var msg = getText(text.start.continue);
-        builder.Prompts.choice(session, msg, getText(text.start.buttons), { retryPrompt: getRetryPrompt(session, msg), bargeInAllowed: false });
+        var msg = getText(text.restart.ask);
+        sendQuickRepliesMessage(session, msg, text.restart.replies);        
     },
     function (session, results) {
-        if (results.response.entity.indexOf("Yes") !== -1) {
+        if (textContains(results.response, text.syn.yes)) {
+            session.conversationData.retries = 0;
             session.beginDialog('/start');
-        } else {
+        } else if (textContains(results.response, text.syn.no)) {
+            session.conversationData.retries = 0;
             session.beginDialog('/goodbye');
+        } else {
+            retry(session, text.restart.choices, '/restart');
         }
     }
 ]);
 
 bot.dialog('/goodbye', [
     function (session) {
+        session.conversationData.retries = 0;
         session.send(getText(text.end));
         session.endConversation();
     }
 ]);
 
-function getRetryPrompt(session, msg) {
-    var prompts = getText(text.retryPrompts, session);
-    for (var i = 0; i < prompts.length; ++i) {
-        prompts[i] += msg;
-    }
-    return prompts;
-}
-
 var MAX_RESULTS = 5;
 
-function Search(session, next) {
+function search(session, next) {
     var iteration;
     var searchTerm = session.conversationData.searchTerm;
-    if (session.conversationData.discover) {
-        iteration = session.userData.discoverIteration;
+    if (session.conversationData.inspire) {
+        iteration = session.userData.inspireIteration;
     } else {
         iteration = session.conversationData.searchIteration;
     }
     var order;
     var maxResults;
-    if (session.conversationData.discover) {
+    if (session.conversationData.inspire) {
         var orders = ['date', 'rating', 'relevance', 'title', 'videoCount', 'viewCount'];
         order = orders[Random(0, 5)];
         maxResults = Random(MAX_RESULTS, 50);
@@ -213,7 +251,7 @@ function Search(session, next) {
             return;
         }
         if (results) {
-            if (session.conversationData.discover) {
+            if (session.conversationData.inspire) {
                 var results2 = [];
                 var idxs = [];
                 while (results2.length < MAX_RESULTS) {
@@ -239,7 +277,7 @@ function Search(session, next) {
                 attachments.push(card);
             }
             if (results.length === 0) {
-                session.send(getText(text.search.noResults, session));
+                session.send(getText(text.error.noResults, session));
                 session.conversationData.found = false;
             } else {
                 session.conversationData.found = true;
@@ -269,18 +307,39 @@ bot.use({
         var diff = 0;
         if (last) {
             var now = Date.now();
-            diff = moment.duration(now - session.conversationData.lastSendTime).asHours();
+            diff = moment.duration(now - session.conversationData.lastSendTime).asHours();;
         }
         var first = typeof session.userData.firstRun === 'undefined';
+        if (first || typeof session.conversationData.retries === 'undefined') {
+            session.conversationData.retries = 0;
+        }
         if (!first && (!last || diff > 1)) {
-            session.beginDialog('/restart');
+            session.beginDialog('/reset');
         } else {
             session.userData.firstRun = first;
-            session.conversationData.lastSendTime = session.lastSendTime;
+            session.conversationData.lastSendTime = session.lastSendTime;            
             next();
-        }
+        }        
     }
 });
+
+function sendQuickRepliesMessage(session, msg, replies) {
+    var replyMessage = new builder.Message(session).text(msg);
+    var quickReplies = [];
+    replies.forEach(function(reply) {
+        quickReplies.push({
+            content_type:"text",
+            title: reply,
+            payload: reply
+        });            
+    });
+    replyMessage.sourceEvent({ 
+        facebook: { 
+            quick_replies: quickReplies
+         }
+    });
+    builder.Prompts.text(session, replyMessage);
+}
 
 function getText(string, session) {
     var ret;
