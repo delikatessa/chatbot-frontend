@@ -4,8 +4,9 @@
   "description": "TEDxVienna ideabot",
   "main": "index.js",
   "dependencies": {
+    "botbuilder": "^3.7.0",
     "moment": "^2.17.1",
-    "botbuilder": "^3.5.4",
+    "pg-promise": "^5.6.0",
     "restify": "^4.3.0",
     "youtube-search": "^1.0.8"
   },
