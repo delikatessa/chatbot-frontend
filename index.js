@@ -98,10 +98,7 @@ bot.dialog('/inspire', [
         session.conversationData.searchTerm = '';
         ctrl.processSearchRequest(session, function() {
             session.beginDialog('/continue');
-        });
-        // searcher.search(session, function() {
-        //     session.beginDialog('/continue');
-        // });
+        });        
     }
 ]);
 
@@ -114,7 +111,7 @@ bot.dialog('/continue', [
             } else {
                 msg = utils.getText(text.continue.search);
             }
-            utils.sendQuickRepliesMessage(session, msg, text.continue.replies);
+            utils.sendQuickRepliesMessage(session, msg, utils.getText(text.continue.replies));
         } else {
             session.beginDialog('/restart');
         }
@@ -125,7 +122,10 @@ bot.dialog('/continue', [
             ctrl.processSearchRequest(session, function() {
                 session.replaceDialog('/continue', { reprompt: true });
             });            
-        } else if (utils.textContains(results.response, text.syn.no)) {            
+        } else if (utils.textContains(results.response, text.syn.search)) {
+            session.conversationData.retries = 0;
+            session.beginDialog('/search');
+        } else if (utils.textContains(results.response, text.syn.no)) {
             session.conversationData.retries = 0;
             session.beginDialog('/restart');
         } else {

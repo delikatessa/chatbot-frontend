@@ -20,7 +20,7 @@ function search(session, callback){
     }
     var opts = {
         maxResults: 50,
-        key: "AIzaSyDkQmf5kACDxIzQIpRrBjMYY9rjH9rPngs",
+        key: process.env.GOOGLE_API_KEY,
         part: 'snippet',
         order: order,
         chart: 'mostPopular',

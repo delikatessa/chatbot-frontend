@@ -21,8 +21,8 @@
   "continue": {
     "search": "Would you like to get more inspiration on this topic?",
     "inspire": "Would you like to get more inspiration?",
-    "replies": [ "Sure", "No, I'm good" ],
-    "choices": [ "'yes'", "'no'" ]
+    "replies": [ "Sure", ":search: Search something else", "No, I'm good" ],
+    "choices": [ "'yes'", "'search'", "'no'" ]
   },
   "end": "Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! :wavinghand:",
   "retryPrompts": [
