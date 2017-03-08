@@ -3,3 +3,9 @@
 ################################################################################
 
 /node_modules
+.vs/VSWorkspaceState.json
+*.suo
+.vs/chatbot-frontend-test/v15/Browse.VC.db
+.vs/ProjectSettings.json
+*.sqlite
+.vs/config/applicationhost.config

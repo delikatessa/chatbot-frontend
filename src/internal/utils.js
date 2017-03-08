@@ -1,15 +1,20 @@
 var builder = require('botbuilder');
 var text = require("./text.json");
 
-exports.Random = function (low, high) {
+module.exports = {
+    random: random,
+    getText: getText,
+    sendQuickRepliesMessage: sendQuickRepliesMessage,
+    textContains: textContains,
+    sendRetryPrompt: sendRetryPrompt,
+    sendHelpMessage: sendHelpMessage
+}
+
+function random(low, high) {
     return Math.floor(Math.random() * (high - low + 1) + low);
 }
 
-exports.getText = function(string, session) {
-    return parseText(string, session);
-}
-
-function parseText(string, session) {
+function getText(string, session) {
     var ret;
     if (string instanceof Array) {
         ret = string.join('|');
@@ -34,7 +39,7 @@ function parseText(string, session) {
     }
 }
 
-exports.sendQuickRepliesMessage = function(session, msg, replies) {
+function sendQuickRepliesMessage(session, msg, replies) {
     var replyMessage = new builder.Message(session).text(msg);
     var quickReplies = [];
     replies.forEach(function(reply) {
@@ -52,7 +57,7 @@ exports.sendQuickRepliesMessage = function(session, msg, replies) {
     builder.Prompts.text(session, replyMessage);
 }
 
-exports.textContains = function(input, words) {
+function textContains(input, words) {
     input = input.toLowerCase();
     for (var i = 0; i < words.length; ++i) {
         if (input.indexOf(words[i]) != -1) {
@@ -63,7 +68,7 @@ exports.textContains = function(input, words) {
 }
 
 var retryPrompts;
-exports.sendRetryPrompt = function(session) {
+function sendRetryPrompt(session) {
     if (typeof retryPrompts === 'undefined') {
         retryPrompts = parseText(text.retryPrompts);    
     }
@@ -72,7 +77,7 @@ exports.sendRetryPrompt = function(session) {
     session.sendTyping();
 }
 
-exports.sendHelpMessage = function(session, choices) {
+function sendHelpMessage(session, choices) {
     var msg = parseText(text.common.help, session).replace(/{choices}/g, parseText(choices).join(" or "));
     session.send(msg);
     session.sendTyping();

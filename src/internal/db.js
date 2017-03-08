@@ -61,14 +61,3 @@ exports.insertTalks = function(talks) {
         console.log("ERROR:", error.message || error);
     });
 }
-
-// function source(index) {   
-//     // create and return a promise object dynamically,
-//     // based on the index passed;
-//     if (index < 100000) {
-//         return this.any('insert into ideabot.talk(name) values($1)', 'name-' + index);
-//     }
-//     // returning or resolving with undefined ends the sequence;
-//     // throwing an error will result in a reject;
-// }
-

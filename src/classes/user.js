@@ -1,6 +1,4 @@
-// Constructor
 function User(channel, external_id) {
-  // always initialize all instance properties
   this.id = 0;
   this.channel = channel;
   this.external_id = external_id;
@@ -9,9 +7,5 @@ function User(channel, external_id) {
   this.locale = null;
   this.timezone = null;
 }
-// class methods
-// User.prototype.someFunction = function() {
 
-// };
-// export the class
 module.exports = User;

@@ -1,9 +1,8 @@
 var builder = require('botbuilder');
-var ctrl = require('./internal/controller')
-var moment = require('moment');
+var ctrl = require('./src/internal/controller')
 var restify = require('restify');
-var text = require("./internal/text.json");
-var utils = require('./internal/utils')
+var text = require("./src/internal/text.json");
+var utils = require('./src/internal/utils')
 
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
@@ -78,10 +77,11 @@ bot.dialog('/start', [
     }
 ]);
 
+
+
 bot.dialog('/search', [
     function (session) {
         session.conversationData.inspire = false;
-        session.conversationData.searchIteration = 1;
         builder.Prompts.text(session, utils.getText(text.search.topic));
     },
     function (session, results) {
@@ -95,12 +95,6 @@ bot.dialog('/search', [
 bot.dialog('/inspire', [
     function (session) {
         session.conversationData.inspire = true;
-        var iter = session.conversationData.inspireIteration;
-        if (typeof iter !== 'undefined' && iter > 1) {
-            session.conversationData.inspireIteration++;
-        } else {
-            session.conversationData.inspireIteration = 1;
-        }
         session.conversationData.searchTerm = '';
         ctrl.processSearchRequest(session, function() {
             session.beginDialog('/continue');
@@ -128,11 +122,6 @@ bot.dialog('/continue', [
     function (session, results) {
         if (utils.textContains(results.response, text.syn.yes)) {
             session.conversationData.retries = 0;
-            if (session.conversationData.inspire) {
-                session.conversationData.inspireIteration++;
-            } else {
-                session.conversationData.searchIteration++;
-            }
             ctrl.processSearchRequest(session, function() {
                 session.replaceDialog('/continue', { reprompt: true });
             });            
@@ -151,12 +140,15 @@ bot.dialog('/restart', [
         utils.sendQuickRepliesMessage(session, msg, text.restart.replies);        
     },
     function (session, results) {
-        if (utils.textContains(results.response, text.syn.yes)) {
-            session.conversationData.retries = 0;
-            session.beginDialog('/start');
-        } else if (utils.textContains(results.response, text.syn.no)) {
+        if (utils.textContains(results.response, text.syn.no)) {
             session.conversationData.retries = 0;
             session.beginDialog('/goodbye');
+        } else if (utils.textContains(results.response, text.syn.search)) {
+            session.conversationData.retries = 0;
+            session.beginDialog('/search');
+        } else if (utils.textContains(results.response, text.syn.inspire)) {
+            session.conversationData.retries = 0;
+            session.beginDialog('/inspire');
         } else {
             retry(session, text.restart.choices, '/restart');
         }
@@ -183,41 +175,11 @@ bot.dialog('/reset', [
 bot.use({
     botbuilder: function (session, callback) {
         session.sendTyping();
-        if (session.userData.user !== undefined && session.userData.user.external_id === session.message.user.id) {
-            checkUserData(session, callback);
-        } else {
-            ctrl.processUser(session, function(user) {
-                session.userData.user = user;
-                checkUserData(session, callback);
-            });
-        }     
+        ctrl.processUser(session, callback);             
     }
 });
 
-function checkUserData(session, callback) {
-    var att = session.message.attachments;
-    if (att.length === 1 && att[0].contentType === 'image/png' && att[0].contentUrl.indexOf('369239') !== -1) {
-        session.send("\ud83d\udc4d");
-        session.sendTyping();
-    }
-    var last = typeof session.conversationData.lastSendTime !== 'undefined';
-    var diff = 0;
-    if (last) {
-        var now = Date.now();
-        diff = moment.duration(now - session.conversationData.lastSendTime).asHours();;
-    }
-    var first = typeof session.userData.firstRun === 'undefined';
-    if (first || typeof session.conversationData.retries === 'undefined') {
-        session.conversationData.retries = 0;
-    }
-    if (!first && (!last || diff > 1)) {
-        session.beginDialog('/reset');
-    } else {
-        session.userData.firstRun = first;
-        session.conversationData.lastSendTime = session.lastSendTime;            
-        callback();
-    }
-}
+
 
 function retry(session, choices, dialog) {
     if (session.conversationData.retries === 2) {
