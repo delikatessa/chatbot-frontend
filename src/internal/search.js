@@ -47,18 +47,19 @@ function processSearchResults(session, results, callback) {
     }
     var num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
     var talks = [];
-    if (session.conversationData.inspire) {
-        session.conversationData.inspireResults = allTalks.slice();
-        var n = allTalks.length;
-        for (var i = 0; i < num; i++, n--) {
-            var j = utils.random(0, n - 1);
+    if (session.conversationData.inspire) {        
+        var tempTalks = allTalks.slice();
+        for (var i = 0; i < num; i++) {
+            var j = utils.random(0, tempTalks.length - 1);
             talks.push(allTalks[j]);
-            session.conversationData.inspireResults.splice(j, 1);
-        }        
+            tempTalks.splice(j, 1);
+        }
+        session.conversationData.inspireTalks = tempTalks;
     } else {
-        session.userData.searchResults = allTalks.slice();
-        talks = session.conversationData.searchResults.slice(0, num);
-        session.conversationData.searchResults.splice(0, num);
+        talks = allTalks.slice(0, num);
+        var tempTalks = allTalks.slice();
+        tempTalks.splice(0, num);
+        session.conversationData.searchTalks = tempTalks;
     }
     sendResults(session, talks);
     callback(allTalks);
