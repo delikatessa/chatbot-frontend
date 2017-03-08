@@ -53,36 +53,36 @@ function checkUserData(session, callback) {
 
 function processSearchRequest(session, callback) {
     if (session.conversationData.inspire === true) {
-        var n = session.userData.inspireResults.length;
-        if (n > 0) {
-            var num = Math.min(settings.SEARCH_RESULTS_NUMBER, n);
-            var talks = session.userData.inspireResults.slice(0, num);
-            session.userData.inspireResults.splice(0, num);
-            searcher.sendResults(session, talks);
-            callback();
+        var allTalks = session.conversationData.inspireTalks;
+        if (allTalks !== undefined && allTalks.length > 0) {
+            sendTalks(session, allTalks, callback);
         } else {
             search(session, 'inspire', 0, callback);
         }
     } else {
         text = session.conversationData.searchTerm.trim().toLowerCase();
-        if (session.userData.term !== undefined && session.userData.term.text === text) {
-            var n = session.userData.searchResults.length;
-            if (n > 0) {
-                var num = Math.min(settings.SEARCH_RESULTS_NUMBER, n);
-                var talks = session.userData.searchResults.slice(0, num);
-                session.userData.searchResults.splice(0, num);
-                searcher.sendResults(session, talks);
-                callback();
+        if (session.conversationData.term !== undefined && session.conversationData.term.text === text) {
+            var allTalks = session.conversationData.searchTalks;
+            if (allTalks !== undefined && allTalks.length > 0) {
+                sendTalks(session, allTalks, callback);
             } else {
-                search(session, 'search', session.userData.term.id, callback);
+                search(session, 'search', session.conversationData.term.id, callback);
             }
         } else {
             db.getTerm(text, function (term) {
-                session.userData.term = term;
+                session.conversationData.term = term;
                 search(session, 'search', term.id, callback);
             });
         }
     }
+}
+
+function sendTalks(session, allTalks, callback) {
+    var num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
+    var talks = allTalks.slice(0, num);
+    searcher.sendResults(session, talks);
+    allTalks.splice(0, num);
+    callback();
 }
 
 function search(session, action, termId, callback) {

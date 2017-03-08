@@ -4,7 +4,7 @@ var User = require('../classes/user');
 
 pgp.pg.defaults.ssl = true;
 
-var db = pgp(process.env.DATABASE_URL)
+var db = pgp("postgres://vuocyocrfutmsr:826a2dc08f11859bf30baf181fe98e6aaeffde086bcf7964d19f5a9b99f5ca6e@ec2-54-247-119-245.eu-west-1.compute.amazonaws.com:5432/d2ljg1lvknlha0");
 
 exports.getUser = function(channel, external_id, callback) {
     var item = new User(channel, external_id);

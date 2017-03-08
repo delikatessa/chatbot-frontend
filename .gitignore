@@ -9,3 +9,4 @@
 .vs/ProjectSettings.json
 *.sqlite
 .vs/config/applicationhost.config
+*.opendb

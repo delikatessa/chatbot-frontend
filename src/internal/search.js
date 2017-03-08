@@ -20,7 +20,7 @@ function search(session, callback){
     }
     var opts = {
         maxResults: 50,
-        key: process.env.GOOGLE_API_KEY,
+        key: "AIzaSyDkQmf5kACDxIzQIpRrBjMYY9rjH9rPngs",
         part: 'snippet',
         order: order,
         chart: 'mostPopular',
@@ -48,17 +48,17 @@ function processSearchResults(session, results, callback) {
     var num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
     var talks = [];
     if (session.conversationData.inspire) {
-        session.userData.inspireResults = allTalks.slice();
+        session.conversationData.inspireResults = allTalks.slice();
         var n = allTalks.length;
         for (var i = 0; i < num; i++, n--) {
             var j = utils.random(0, n - 1);
             talks.push(allTalks[j]);
-            session.userData.inspireResults.splice(j, 1);
+            session.conversationData.inspireResults.splice(j, 1);
         }        
     } else {
         session.userData.searchResults = allTalks.slice();
-        talks = session.userData.searchResults.slice(0, num);
-        session.userData.searchResults.splice(0, num);
+        talks = session.conversationData.searchResults.slice(0, num);
+        session.conversationData.searchResults.splice(0, num);
     }
     sendResults(session, talks);
     callback(allTalks);

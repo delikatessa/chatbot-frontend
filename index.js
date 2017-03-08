@@ -137,7 +137,7 @@ bot.dialog('/continue', [
 bot.dialog('/restart', [
     function (session) {
         var msg = utils.getText(text.restart.ask);
-        utils.sendQuickRepliesMessage(session, msg, text.restart.replies);        
+        utils.sendQuickRepliesMessage(session, msg, utils.getText(text.restart.replies));
     },
     function (session, results) {
         if (utils.textContains(results.response, text.syn.no)) {
