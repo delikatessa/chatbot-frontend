@@ -4,10 +4,9 @@ var User = require('../classes/user');
 var db = require('./db');
 var moment = require('moment');
 var searcher = require('./search')
-var text = require("./text.json");
-var settings = require('./settings.json');
-//var fb = require('../external/facebook/facebook');
-
+var text = require("../resources/text.json");
+var settings = require('../resources/settings.json');
+var fb = require('../external/facebook');
 
 module.exports = {
     processUser: processUser,
@@ -18,12 +17,21 @@ function processUser(session, callback) {
     if (session.userData.user !== undefined && session.userData.user.external_id === session.message.user.id) {
         checkUserData(session, callback);
     } else {
-        db.getUser('fb', session.message.user.id, function (user) {
-            //b.getUserPublicProfile()
-            session.userData.user = user;
-            checkUserData(session, callback);
-        });        
-    }    
+        var user = new User('fb', session.message.user.id);
+        fb.getUserPublicProfile(user.external_id, function (data) {
+            var profile = JSON.parse(data);
+            user.first_name = profile.first_name;
+            user.last_name = profile.last_name;
+            user.gender = profile.gender;
+            user.locale = profile.locale;
+            user.timezone = profile.timezone;
+            user.profile_pic = profile.profile_pic;
+            db.getUser(user, function (user2) {
+                session.userData.user = user2;
+                checkUserData(session, callback);
+            });
+        });
+    }
 }
 
 function checkUserData(session, callback) {

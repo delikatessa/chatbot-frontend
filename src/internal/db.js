@@ -6,9 +6,9 @@ pgp.pg.defaults.ssl = true;
 
 var db = pgp("postgres://vuocyocrfutmsr:826a2dc08f11859bf30baf181fe98e6aaeffde086bcf7964d19f5a9b99f5ca6e@ec2-54-247-119-245.eu-west-1.compute.amazonaws.com:5432/d2ljg1lvknlha0");
 
-exports.getUser = function(channel, external_id, callback) {
-    var item = new User(channel, external_id);
-    db.one("INSERT INTO ideabot.user(channel, external_id) VALUES(${channel}, ${external_id}) ON CONFLICT ON CONSTRAINT user_key DO UPDATE SET channel = EXCLUDED.channel RETURNING id;", item)
+exports.getUser = function(item, callback) {
+    //var item = new User(channel, external_id);
+    db.one("INSERT INTO ideabot.user(channel, external_id, first_name, last_name, gender, locale, timezone, profile_pic) VALUES(${channel}, ${external_id}, ${first_name}, ${last_name}, ${gender}, ${locale}, ${timezone}, ${profile_pic}) ON CONFLICT ON CONSTRAINT user_key DO UPDATE SET channel = EXCLUDED.channel RETURNING id;", item)
         .then(function (data) {
             item.id = data.id;
             callback(item);

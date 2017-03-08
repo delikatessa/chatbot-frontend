@@ -1,7 +1,7 @@
 var builder = require('botbuilder');
 var ctrl = require('./src/internal/controller')
 var restify = require('restify');
-var text = require("./src/internal/text.json");
+var text = require("./src/resources/text.json");
 var utils = require('./src/internal/utils')
 
 var server = restify.createServer();

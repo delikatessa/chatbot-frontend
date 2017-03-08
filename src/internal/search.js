@@ -1,9 +1,9 @@
 var builder = require('botbuilder');
 var Talk = require('../classes/talk')
-var text = require("./text.json");
+var text = require("../resources/text.json");
 var utils = require('./utils')
 var youtube = require('youtube-search');
-var settings = require('./settings.json');
+var settings = require('../resources/settings.json');
 
 module.exports = {
     search: search,
