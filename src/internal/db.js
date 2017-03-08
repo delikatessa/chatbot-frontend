@@ -14,14 +14,14 @@ exports.getUser = function(item, callback) {
             callback(item);
         })
         .catch(function (error) {
-            console.log("ERROR:", error.message || error);
+            console.log("ERROR.Postgresql:", error.message || error);
     });
 }
 
 exports.updateUser = function(item) {
     db.none("UPDATE ideabot.user SET first_name=${first_name}, gender=${gender}, locale=${locale}, timezone=${timezone} WHERE id=${id}", item)
         .catch(function (error) {
-            console.log("ERROR:", error.message || error);
+            console.log("ERROR.Postgresql:", error.message || error);
         });
 }
 
@@ -33,7 +33,7 @@ exports.getTerm = function(text, callback) {
             callback(item);
         })
         .catch(function (error) {
-            console.log("ERROR:", error.message || error);
+            console.log("ERROR.Postgresql:", error.message || error);
     });
 }
 
@@ -43,7 +43,7 @@ exports.insertUserAction = function(userId, action, termId, callback) {
             callback();
         })
         .catch(function (error) {
-            console.log("ERROR:", error.message || error);
+            console.log("ERROR.Postgresql:", error.message || error);
         });
 }
 
@@ -58,6 +58,6 @@ exports.insertTalks = function(talks) {
         data = data;
     })
     .catch(function (error) {
-        console.log("ERROR:", error.message || error);
+        console.log("ERROR.Postgresql:", error.message || error);
     });
 }
