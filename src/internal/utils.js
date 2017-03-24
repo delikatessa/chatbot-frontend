@@ -100,7 +100,7 @@ function dialogRetry(session, replies, dialog) {
         const choice = getTextChoice(replies);
         const i = random(0, text.retry.options.length - 1);
         const options = getText(text.retry.options[i])
-        msg += "\n\n" + getText(text.retry.facebook) + "\n\n" + choice;
+        msg += " " + getText(text.retry.facebook) + "\n\n" + choice;
     }
     
     session.send(msg);

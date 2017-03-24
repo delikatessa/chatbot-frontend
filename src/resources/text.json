@@ -66,10 +66,6 @@
   },
   "end": "Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! :wavinghand:",
   "retry": {
-    "options": [
-      "Please choose one of the following options:",
-      "Right now you have the choices:"
-    ],
     "prompts": [
       "Sorry, I didn't quite get that....",
       "Your wordsmith skills are just too much for me! I didn't get that.",
