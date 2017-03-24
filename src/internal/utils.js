@@ -6,8 +6,7 @@ module.exports = {
     getText: getText,
     sendQuickRepliesMessage: sendQuickRepliesMessage,
     textContains: textContains,
-    sendRetryPrompt: sendRetryPrompt,
-    sendHelpMessage: sendHelpMessage
+    dialogRetry: dialogRetry
 }
 
 function random(low, high) {
@@ -29,9 +28,9 @@ function getText(string, session) {
             userName = session.userData.user.first_name;
         }
         ret = ret.replace(/{user}/g, userName);
-    }
-    if (ret.indexOf(":") != -1) {
-        const emoticons = ret.match(/:\w+:/ig);
+    }    
+    const emoticons = ret.match(/:\w+:/ig);
+    if (emoticons !== null) {
         for (let emoticon of emoticons) {
             let code = text.emoticons[emoticon.replace(/:/g, '')];
             if (code === undefined) {
@@ -47,26 +46,41 @@ function getText(string, session) {
     }
 }
 
-function sendQuickRepliesMessage(session, msg, replies) {
-    const replyMessage = new builder.Message(session).text(msg);
-    const quickReplies = [];
-    for (let reply of replies) {
-        quickReplies.push({
-            content_type: "text",
-            title: reply,
-            payload: reply
-        });
-    }
-    replyMessage.sourceEvent({ 
-        facebook: { 
-            quick_replies: quickReplies
-         }
-    });
-    builder.Prompts.text(session, replyMessage);
+function sendQuickRepliesMessage(session, text, replies) {
+    let msg = new builder.Message(session);
+    if (session.message.source === "facebook") {
+        const quickReplies = [];
+        for (let reply of replies) {
+            quickReplies.push({
+                content_type: "text",
+                title: getText(reply.value),
+                payload: reply.payload
+            });
+        }
+        const card = {
+            facebook: {
+                quick_replies: quickReplies
+            }
+        };
+        msg.text(text).sourceEvent(card);
+    } else {        
+        const choice = getTextChoice(replies);        
+        msg.text(text + "\n" + choice);
+    }    
+    builder.Prompts.text(session, msg);
 }
 
-function textContains(input, words) {
+function getTextChoice(replies) {
+    let choices = [];
+    for (let reply of replies) {
+        choices.push(reply.index + ". " + getText(reply.value));
+    }
+    return choices.join(" | ");
+}
+
+function textContains(input, words, index) {
     input = input.toLowerCase();
+    words.push(index.toString());
     for (let word of words) {
         if (input.indexOf(word) != -1) {
             return true;
@@ -75,18 +89,21 @@ function textContains(input, words) {
     return false;
 }
 
-const retryPrompts = [];
-function sendRetryPrompt(session) {
-    if (typeof retryPrompts === 'undefined') {
-        retryPrompts = getText(text.retryPrompts);    
+let retryPrompts = [];
+function dialogRetry(session, replies, dialog) {
+    if (retryPrompts.length === 0) {
+        retryPrompts = getText(text.retry.prompts);
     }
-    const i = random(0, retryPrompts.length - 1);
-    session.send(retryPrompts[i]);
-    session.sendTyping();
-}
-
-function sendHelpMessage(session, choices) {
-    const msg = getText(text.common.help, session).replace(/{choices}/g, getText(choices).join(" or "));
+    const retry = retryPrompts[random(0, retryPrompts.length - 1)];
+    msg = retry;
+    if (session.message.source === "facebook") {
+        const choice = getTextChoice(replies);
+        const i = random(0, text.retry.options.length - 1);
+        const options = getText(text.retry.options[i])
+        msg += "\n\n" + getText(text.retry.facebook) + "\n\n" + choice;
+    }
+    
     session.send(msg);
     session.sendTyping();
+    session.replaceDialog(dialog, { reprompt: false });
 }

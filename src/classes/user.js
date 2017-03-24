@@ -10,4 +10,14 @@ module.exports = class User {
         this.timezone = null;
         this.profile_pic = null;
     }
+
+    setProfileData(data) {
+        const profile = JSON.parse(data);
+        this.first_name = profile.first_name;
+        this.last_name = profile.last_name;
+        this.gender = profile.gender;
+        this.locale = profile.locale;
+        this.timezone = profile.timezone;
+        this.profile_pic = profile.profile_pic;
+    }
 }

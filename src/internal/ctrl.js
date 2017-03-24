@@ -19,13 +19,7 @@ function processUser(session, callback) {
     } else {
         const user = new User('fb', session.message.user.id);
         fb.getUserPublicProfile(user.external_id, function (data) {
-            const profile = JSON.parse(data);
-            user.first_name = profile.first_name;
-            user.last_name = profile.last_name;
-            user.gender = profile.gender;
-            user.locale = profile.locale;
-            user.timezone = profile.timezone;
-            user.profile_pic = profile.profile_pic;
+            user.setProfileData(data);
             db.getUser(user, function (user2) {
                 session.userData.user = user2;
                 checkUserData(session, callback);
@@ -86,8 +80,7 @@ function sendTalks(session, allTalks, callback) {
     const num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
     const talks = [];
     for (let obj of allTalks.slice(0, num)) {
-        const talk = new Talk(obj)
-        talks.push(talk);
+        talks.push(new Talk(obj));
     }    
     searcher.sendResults(session, talks);
     allTalks.splice(0, num);

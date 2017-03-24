@@ -6,13 +6,38 @@
   "start": {
     "first": "How would you like to get started?",
     "back": "What would you like to do?",
-    "replies": [ ":search: Search", ":bulb: Inspire me" ],
-    "choices": [ "'search'", "'inspire'" ]
+    "replies": [
+      {
+        "value": "Search :search:",
+        "index": 1,
+        "payload": "search"
+      },
+      {
+        "value": "Inspire me :bulb:",
+        "index": 2,
+        "payload": "inspire"
+      }
+    ]
   },
   "restart": {
     "ask": "Is there anything else you’d like to do?",
-    "replies": [ ":search: Search", ":bulb: Inspire me", "No, thanks" ],
-    "choices": [ "'search'", "'inspire'", "'no'" ]
+    "replies": [
+      {
+        "value": "Search :search:",
+        "index": 1,
+        "payload": "search"
+      },
+      {
+        "value": "Inspire me :bulb:",
+        "index": 2,
+        "payload": "inspire"
+      },
+      {
+        "value": "No, thanks",
+        "index": 3,
+        "payload": "no"
+      }
+    ]
   },
   "search": {
     "topic": "Ok, what are you interested in?",
@@ -21,16 +46,39 @@
   "continue": {
     "search": "Would you like to get more inspiration on this topic?",
     "inspire": "Would you like to get more inspiration?",
-    "replies": [ "Sure", "No, I'm good", ":search: New search" ],
-    "choices": [ "'yes'", "'no'", "'search'" ]
+    "replies": [
+      {
+        "value": "Sure",
+        "index": 1,
+        "payload": "yes"
+      },
+      {
+        "value": "No, I'm good",
+        "index": 2,
+        "payload": "no"
+      },
+      {
+        "value": "New search :search:",
+        "index": 3,
+        "payload": "search"
+      }
+    ]
   },
   "end": "Thanks for dropping by! Come back anytime for a further dose of inspiration. Talk to you soon! :wavinghand:",
-  "retryPrompts": [
-    "Sorry, I didn't quite get that....\n\n",
-    "Your wordsmith skills are just too much for me! I didn't get that.\n\n",
-    "Oh stop it! I'm blushing. Or did I get that wrong?\n\n",
-    "Asfdsjihu. Or did you mean omdjosfjsjn? Please choose one of the following options.\n\n"
-  ],
+  "retry": {
+    "options": [
+      "Please choose one of the following options:",
+      "Right now you have the choices:"
+    ],
+    "prompts": [
+      "Sorry, I didn't quite get that....",
+      "Your wordsmith skills are just too much for me! I didn't get that.",
+      "Oh stop it! I'm blushing. Or did I get that wrong?",
+      "Asfdsjihu. Or did you mean omdjosfjsjn?",
+      "Sorry, I'm not sure what to do :sweat_smile:."
+    ],
+    "facebook": "Please type what you prefer or hit one of the buttons right below."
+  },
   "emoticons": {
     "robot": "\ud83e\udd16",
     "search": "\ud83d\udd0e",
@@ -49,8 +97,5 @@
   },
   "error": {
     "noSearchResults": "Sorry {user}, I couldn't find anything."
-  },
-  "common": {
-    "help": "Sorry, I'm not sure what to do :sweat_smile:. Right now you have the choices {choices}. Please type what you prefer or hit one of the buttons right below."
   }
 }

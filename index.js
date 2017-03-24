@@ -44,8 +44,7 @@ bot.dialog('/', function(session) {
     session.send(msg);
     session.sendTyping();
     session.conversationData.lastVisited = session.lastSendTime;
-    session.conversationData.retries = 0;
-    session.userData.firstRun = true;    
+    session.userData.firstRun = true;
     session.beginDialog('/start');
 });
 
@@ -67,22 +66,18 @@ bot.dialog('/start', [
         } else {
             msg = utils.getText(text.start.back);
         }
-        utils.sendQuickRepliesMessage(session, msg, utils.getText(text.start.replies));
+        utils.sendQuickRepliesMessage(session, msg, text.start.replies);
     },
     function(session, results) {
-        if (utils.textContains(results.response, text.syn.search)) {
-            session.conversationData.retries = 0;
+        if (utils.textContains(results.response, text.syn.search, 1)) {
             session.beginDialog('/search');
-        } else if (utils.textContains(results.response, text.syn.inspire)) {
-            session.conversationData.retries = 0;
+        } else if (utils.textContains(results.response, text.syn.inspire, 2)) {
             session.beginDialog('/inspire')
         } else {
-            retry(session, text.start.choices, '/start');
+            utils.dialogRetry(session, text.start.replies, '/start');
         }        
     }
 ]);
-
-
 
 bot.dialog('/search', [
     function(session) {
@@ -116,25 +111,22 @@ bot.dialog('/continue', [
             } else {
                 msg = utils.getText(text.continue.search);
             }
-            utils.sendQuickRepliesMessage(session, msg, utils.getText(text.continue.replies));
+            utils.sendQuickRepliesMessage(session, msg, text.continue.replies);
         } else {
             session.beginDialog('/restart');
         }
     },
     function(session, results) {
-        if (utils.textContains(results.response, text.syn.yes)) {
-            session.conversationData.retries = 0;
+        if (utils.textContains(results.response, text.syn.yes, 1)) {
             ctrl.processSearchRequest(session, function() {
                 session.replaceDialog('/continue', { reprompt: true });
             });            
-        } else if (utils.textContains(results.response, text.syn.search)) {
-            session.conversationData.retries = 0;
-            session.beginDialog('/search');
-        } else if (utils.textContains(results.response, text.syn.no)) {
-            session.conversationData.retries = 0;
+        } else if (utils.textContains(results.response, text.syn.no, 2)) {
             session.beginDialog('/restart');
+        } else if (utils.textContains(results.response, text.syn.search, 3)) {
+            session.beginDialog('/search');
         } else {
-            retry(session, text.continue.choices, '/continue');
+            utils.dialogRetry(session, text.continue.replies, '/continue');
         }
     }
 ]);
@@ -142,27 +134,23 @@ bot.dialog('/continue', [
 bot.dialog('/restart', [
     function(session) {
         const msg = utils.getText(text.restart.ask);
-        utils.sendQuickRepliesMessage(session, msg, utils.getText(text.restart.replies));
+        utils.sendQuickRepliesMessage(session, msg, text.restart.replies);
     },
     function(session, results) {
-        if (utils.textContains(results.response, text.syn.no)) {
-            session.conversationData.retries = 0;
-            session.beginDialog('/goodbye');
-        } else if (utils.textContains(results.response, text.syn.search)) {
-            session.conversationData.retries = 0;
+        if (utils.textContains(results.response, text.syn.search, 1)) {
             session.beginDialog('/search');
-        } else if (utils.textContains(results.response, text.syn.inspire)) {
-            session.conversationData.retries = 0;
+        } else if (utils.textContains(results.response, text.syn.inspire, 2)) {
             session.beginDialog('/inspire');
+        } else if (utils.textContains(results.response, text.syn.no, 3)) {
+            session.beginDialog('/goodbye');
         } else {
-            retry(session, text.restart.choices, '/restart');
+            utils.dialogRetry(session, text.restart.replies, '/restart');
         }
     }
 ]);
 
 bot.dialog('/goodbye', [
     function(session) {
-        session.conversationData.retries = 0;
         session.send(utils.getText(text.end));
         session.endConversation();
     }
@@ -178,19 +166,8 @@ bot.dialog('/reset', [
 ]);
 
 bot.use({
-    botbuilder: function(session, callback) {
-        session.sendTyping();
-        ctrl.processUser(session, callback);             
+    botbuilder: function (session, callback) {
+            session.sendTyping();
+        ctrl.processUser(session, callback);
     }
 });
-
-function retry(session, choices, dialog) {
-    if (session.conversationData.retries === 2) {
-        session.conversationData.retries = 0;
-        utils.sendHelpMessage(session, choices);
-    } else {
-        session.conversationData.retries++;
-        utils.sendRetryPrompt(session);
-    }    
-    session.replaceDialog(dialog, { reprompt: true });
-}

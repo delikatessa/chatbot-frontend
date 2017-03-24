@@ -71,8 +71,8 @@ function sendResults(session, talks) {
         return;
     }
     session.conversationData.found = true;
-    let msg = new builder.Message(session);
-    //if (session.message.source === "facebook") {
+    const msg = new builder.Message(session);
+    if (session.message.source === "facebook") {
         let elements = [];
         for (let talk of talks) {
             const element = {
@@ -100,19 +100,19 @@ function sendResults(session, talks) {
                 }
             }
         };
-        msg = msg.sourceEvent(card);
-    //} else {
-    //    let attachments = [];
-    //    for (let talk of talks) {
-    //        const card = new builder.ThumbnailCard(session)
-    //            .title(talk.title)
-    //            .subtitle(talk.subtitle)
-    //            .tap(builder.CardAction.openUrl(session, talk.url))
-    //            .buttons([builder.CardAction.openUrl(session, talk.url, text.search.watch)])
-    //            .images([builder.CardImage.create(session, talk.thumbnail_url)]);
-    //        attachments.push(card);
-    //    }
-    //    msg = msg.attachmentLayout(builder.AttachmentLayout.carousel).attachments(attachments);        
-    //}
+        msg.sourceEvent(card);
+    } else {
+        let attachments = [];
+        for (let talk of talks) {
+            const card = new builder.ThumbnailCard(session)
+                .title(talk.title)
+                .subtitle(talk.subtitle)
+                .tap(builder.CardAction.openUrl(session, talk.url))
+                .buttons([builder.CardAction.openUrl(session, talk.url, text.search.watch)])
+                .images([builder.CardImage.create(session, talk.thumbnail_url)]);
+            attachments.push(card);
+        }
+        msg.attachmentLayout(builder.AttachmentLayout.carousel).attachments(attachments);        
+    }
     session.send(msg);
 }
