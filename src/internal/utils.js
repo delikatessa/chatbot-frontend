@@ -32,7 +32,7 @@ function getText(string, session) {
     }
     if (ret.indexOf(":") != -1) {
         const emoticons = ret.match(/:\w+:/ig);
-        for (emoticon of emoticons) {
+        for (let emoticon of emoticons) {
             let code = text.emoticons[emoticon.replace(/:/g, '')];
             if (code === undefined) {
                 code = '';
@@ -50,7 +50,7 @@ function getText(string, session) {
 function sendQuickRepliesMessage(session, msg, replies) {
     const replyMessage = new builder.Message(session).text(msg);
     const quickReplies = [];
-    for (reply in replies) {
+    for (let reply of replies) {
         quickReplies.push({
             content_type: "text",
             title: reply,
