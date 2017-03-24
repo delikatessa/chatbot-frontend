@@ -90,7 +90,7 @@ bot.dialog('/search', [
         builder.Prompts.text(session, utils.getText(text.search.topic));
     },
     function(session, results) {
-        session.conversationData.searchTerm = results.response;
+        session.conversationData.newTerm = results.response.trim().toLowerCase();
         ctrl.processSearchRequest(session, function() {
             session.beginDialog('/continue');
         });
@@ -100,7 +100,7 @@ bot.dialog('/search', [
 bot.dialog('/inspire', [
     function(session) {
         session.conversationData.inspire = true;
-        session.conversationData.searchTerm = '';
+        session.conversationData.newTerm = null;
         ctrl.processSearchRequest(session, function() {
             session.beginDialog('/continue');
         });        

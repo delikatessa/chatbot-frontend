@@ -32,7 +32,7 @@ function search(session, callback) {
 
 function searchTEDxTalks(session, opts, callback) {
     opts.channelId = settings.YOUTUBE_CHANNEL_1;
-    youtube(session.conversationData.searchTerm, opts, function (error, results) {
+    youtube(session.conversationData.newTerm, opts, function (error, results) {
         if (error) {
             console.log("ERROR.Youtube:", error.message || error);
         } else {
@@ -102,9 +102,9 @@ function sendResults(session, talks) {
         };
         msg = msg.sourceEvent(card);
     } else {
-        var attachments = [];
-        for (var talk of talks) {
-            var card = new builder.ThumbnailCard(session)
+        let attachments = [];
+        for (let talk of talks) {
+            const card = new builder.ThumbnailCard(session)
                 .title(talk.title)
                 .subtitle(talk.subtitle)
                 .tap(builder.CardAction.openUrl(session, talk.url))

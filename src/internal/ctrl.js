@@ -60,17 +60,15 @@ function checkUserData(session, callback) {
 }
 
 function processSearchRequest(session, callback) {
-    if (session.conversationData.inspire === true) {
-        session.conversationData.term = null;
+    if (session.conversationData.inspire === true) {        
         const allTalks = session.conversationData.inspireTalks;
         if (allTalks !== undefined && allTalks.length > 0) {
             sendTalks(session, allTalks, callback);
         } else {
             search(session, 'inspire', callback);
         }
-    } else {
-        text = session.conversationData.searchTerm.trim().toLowerCase();
-        if (session.conversationData.term === text) {
+    } else {        
+        if (session.conversationData.newTerm === session.conversationData.oldTerm) {
             const allTalks = session.conversationData.searchTalks;
             if (allTalks !== undefined && allTalks.length > 0) {
                 sendTalks(session, allTalks, callback);
@@ -78,7 +76,7 @@ function processSearchRequest(session, callback) {
                 search(session, 'search', callback);
             }
         } else {
-            session.conversationData.term = text;
+            session.conversationData.oldTerm = session.conversationData.newTerm;
             search(session, 'search', callback);
         }
     }
@@ -97,12 +95,12 @@ function sendTalks(session, allTalks, callback) {
 }
 
 function search(session, action, callback) {
-    db.insertUserAction(session.userData.user.id, action, session.conversationData.term, 0, function() {
+    db.insertUserAction(session.userData.user.id, action, session.conversationData.newTerm, 0, function() {
         searcher.search(session, callback);
     });
 }
 
-function logWatched(userId, term, talk) {
+function logWatched(userId, talk) {
     db.insertTalk(talk, function(talkId){
         db.insertUserAction(session.userData.user.id, "watch", term, talkId, callback);
     });
