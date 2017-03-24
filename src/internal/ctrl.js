@@ -2,7 +2,7 @@ var Talk = require('../classes/talk');
 var Term = require('../classes/term');
 var User = require('../classes/user');
 var db = require('./db');
-var moment = require('moment-timezone');
+var moment = require('moment');
 var searcher = require('./search')
 var text = require("../resources/text.json");
 var settings = require('../resources/settings.json');
@@ -40,14 +40,14 @@ function checkUserData(session, callback) {
         session.send(text.emoticons.thumbsup);
         session.sendTyping();
     }
-    const last = typeof session.conversationData.lastVisited !== 'undefined';
+    const last = session.conversationData.lastVisited !== undefined;
     let diff = 0;
     if (last) {
-        const now = moment().tz(settings.TIMEZONE);
+        const now = moment().unix();
         diff = moment.duration(now - session.conversationData.lastVisited).asHours();;
     }
-    const first = typeof session.userData.firstRun === 'undefined';
-    if (first || typeof session.conversationData.retries === 'undefined') {
+    const first = session.userData.firstRun === undefined;
+    if (first || session.conversationData.retries === undefined) {
         session.conversationData.retries = 0;
     }
     if (!first && (!last || diff > 1)) {

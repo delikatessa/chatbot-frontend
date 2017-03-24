@@ -1,6 +1,7 @@
 var builder = require('botbuilder');
 var ctrl = require('./src/internal/ctrl')
 var restify = require('restify');
+var settings = require('./src/resources/settings.json');
 var text = require("./src/resources/text.json");
 var utils = require('./src/internal/utils')
 
@@ -24,16 +25,18 @@ bot.beginDialogAction('reset', '/reset', { matches: /^reset/i });
 bot.beginDialogAction('bye', '/goodbye', { matches: /^bye\b/i });
 bot.beginDialogAction('test', '/test', { matches: /^test/i });
 
-bot.dialog('/test', function(session) {
-    session.send("user: " + JSON.stringify(session.message.user))
-    session.send("agent: " + JSON.stringify(session.message.agent))
-    session.send("source: " + JSON.stringify(session.message.source))
+bot.dialog('/test', function (session) {
+    if (settings.DEBUG) {
+        session.send("user: " + JSON.stringify(session.message.user));
+        session.send("agent: " + JSON.stringify(session.message.agent));
+        session.send("source: " + JSON.stringify(session.message.source));
+    }
     session.endDialog();
 });
 
 bot.dialog('/', function(session) {
     let msg;
-    if (typeof session.userData.firstRun === 'undefined') {
+    if (session.userData.firstRun === undefined) {
         msg = utils.getText(text.greeting.first, session);
     } else {
         msg = utils.getText(text.greeting.back, session);
@@ -58,7 +61,7 @@ bot.dialog('/greeting', [
 bot.dialog('/start', [
     function(session) {
         let msg;
-        if (typeof session.userData.firstRun === 'boolean' && session.userData.firstRun) {
+        if (session.userData.firstRun !== undefined && session.userData.firstRun) {
             msg = utils.getText(text.start.first);
             session.userData.firstRun = false;
         } else {

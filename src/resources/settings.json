@@ -1,5 +1,6 @@
 {
   "SEARCH_RESULTS_NUMBER": 5,
   "YOUTUBE_CHANNEL_1": "UCsT0YIqwnpJCM-mx7-gSA4Q",
-  "TIMEZONE": "Europe/Vienna"
+  "TIMEZONE": "Europe/Vienna",
+  "DEBUG":  true
 }
