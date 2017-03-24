@@ -71,7 +71,7 @@ function sendResults(session, talks) {
         return;
     }
     session.conversationData.found = true;
-    var msg;
+    let msg = new builder.Message(session);
     if (session.message.source === "facebook") {
         let elements = [];
         for (let talk of talks) {
@@ -100,11 +100,11 @@ function sendResults(session, talks) {
                 }
             }
         };
-        msg = new builder.Message(session).sourceEvent(card);
+        msg = msg.sourceEvent(card);
     } else {
-        let attachments = [];
-        for (let talk of talks) {
-            const card = new builder.ThumbnailCard(session)
+        var attachments = [];
+        for (var talk of talks) {
+            var card = new builder.ThumbnailCard(session)
                 .title(talk.title)
                 .subtitle(talk.subtitle)
                 .tap(builder.CardAction.openUrl(session, talk.url))
@@ -112,7 +112,7 @@ function sendResults(session, talks) {
                 .images([builder.CardImage.create(session, talk.thumbnail_url)]);
             attachments.push(card);
         }
-        msg = new builder.Message(session).attachmentLayout(builder.AttachmentLayout.carousel).attachments(attachments);        
+        msg = msg.attachmentLayout(builder.AttachmentLayout.carousel).attachments(attachments);        
     }
     session.send(msg);
 }

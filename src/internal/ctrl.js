@@ -61,37 +61,43 @@ function checkUserData(session, callback) {
 
 function processSearchRequest(session, callback) {
     if (session.conversationData.inspire === true) {
+        session.conversationData.term = null;
         const allTalks = session.conversationData.inspireTalks;
         if (allTalks !== undefined && allTalks.length > 0) {
             sendTalks(session, allTalks, callback);
         } else {
-            search(session, 'inspire', null, callback);
+            search(session, 'inspire', callback);
         }
     } else {
         text = session.conversationData.searchTerm.trim().toLowerCase();
-        if (session.conversationData.term !== undefined && session.conversationData.term.text === text) {
+        if (session.conversationData.term === text) {
             const allTalks = session.conversationData.searchTalks;
             if (allTalks !== undefined && allTalks.length > 0) {
                 sendTalks(session, allTalks, callback);
             } else {
-                search(session, 'search', session.conversationData.term, callback);
+                search(session, 'search', callback);
             }
         } else {
-            search(session, 'search', text, callback);
+            session.conversationData.term = text;
+            search(session, 'search', callback);
         }
     }
 }
 
 function sendTalks(session, allTalks, callback) {
     const num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
-    const talks = allTalks.slice(0, num);
+    const talks = [];
+    for (let obj of allTalks.slice(0, num)) {
+        const talk = new Talk(obj)
+        talks.push(talk);
+    }    
     searcher.sendResults(session, talks);
     allTalks.splice(0, num);
     callback();
 }
 
-function search(session, action, term, callback) {
-    db.insertUserAction(session.userData.user.id, action, term, 0, function() {
+function search(session, action, callback) {
+    db.insertUserAction(session.userData.user.id, action, session.conversationData.term, 0, function() {
         searcher.search(session, callback);
     });
 }

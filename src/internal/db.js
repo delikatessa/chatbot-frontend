@@ -48,7 +48,7 @@ exports.insertUserAction = function(userId, action, term, talkId, callback) {
 }
 
 exports.insertTalk = function(item) {
-    db.none("INSERT INTO ideabot.talk(source, external_id, user_id, category, type, title, speaker, event, url, thumbnail_url, published_at) VALUES(${source}, ${external_id}, ${user_id},  ${category}, ${type}, ${title}, ${speaker}, ${event}, ${url}, ${thumbnail_url}, ${published_at}) ON CONFLICT ON CONSTRAINT talk_key DO NOTHING;", item)
+    db.none("INSERT INTO ideabot.talk(source, external_id, user_id, category, type, title, speaker, event, url, thumbnail_url, published_at, full_title) VALUES(${source}, ${external_id}, ${user_id},  ${category}, ${type}, ${title}, ${speaker}, ${event}, ${url}, ${thumbnail_url}, ${published_at}, ${full_title}) ON CONFLICT ON CONSTRAINT talk_key DO NOTHING;", item)
         .then(function (data) {
             callback(data.id);
         })
