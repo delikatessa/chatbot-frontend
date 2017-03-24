@@ -1,11 +1,11 @@
 var builder = require('botbuilder');
-var ctrl = require('./src/internal/controller')
+var ctrl = require('./src/internal/ctrl')
 var restify = require('restify');
 var text = require("./src/resources/text.json");
 var utils = require('./src/internal/utils')
 
 var server = restify.createServer();
-server.listen(process.env.port || process.env.PORT || 3978, function () {
+server.listen(process.env.port || process.env.PORT || 3978, function() {
     console.log('%s listening to %s', server.name, server.url);
 });
 
@@ -25,12 +25,14 @@ bot.beginDialogAction('bye', '/goodbye', { matches: /^bye\b/i });
 bot.beginDialogAction('test', '/test', { matches: /^test/i });
 
 bot.dialog('/test', function(session) {
-    session.send(JSON.stringify(session.message.user))
+    session.send("user: " + JSON.stringify(session.message.user))
+    session.send("agent: " + JSON.stringify(session.message.agent))
+    session.send("source: " + JSON.stringify(session.message.source))
     session.endDialog();
 });
 
-bot.dialog('/', function (session) {
-    var msg;
+bot.dialog('/', function(session) {
+    let msg;
     if (typeof session.userData.firstRun === 'undefined') {
         msg = utils.getText(text.greeting.first, session);
     } else {
@@ -38,15 +40,15 @@ bot.dialog('/', function (session) {
     }
     session.send(msg);
     session.sendTyping();
-    session.conversationData.lastSendTime = session.lastSendTime;
+    session.conversationData.lastVisited = session.lastSendTime;
     session.conversationData.retries = 0;
     session.userData.firstRun = true;    
     session.beginDialog('/start');
 });
 
 bot.dialog('/greeting', [
-    function (session) {
-        var greeting = utils.getText(text.greeting.first, session);
+    function(session) {
+        const greeting = utils.getText(text.greeting.first, session);
         session.send(greeting);
         session.sendTyping();
         session.endDialog();
@@ -54,8 +56,8 @@ bot.dialog('/greeting', [
 ]);
 
 bot.dialog('/start', [
-    function (session) {
-        var msg;
+    function(session) {
+        let msg;
         if (typeof session.userData.firstRun === 'boolean' && session.userData.firstRun) {
             msg = utils.getText(text.start.first);
             session.userData.firstRun = false;
@@ -64,7 +66,7 @@ bot.dialog('/start', [
         }
         utils.sendQuickRepliesMessage(session, msg, utils.getText(text.start.replies));
     },
-    function (session, results) {
+    function(session, results) {
         if (utils.textContains(results.response, text.syn.search)) {
             session.conversationData.retries = 0;
             session.beginDialog('/search');
@@ -80,11 +82,11 @@ bot.dialog('/start', [
 
 
 bot.dialog('/search', [
-    function (session) {
+    function(session) {
         session.conversationData.inspire = false;
         builder.Prompts.text(session, utils.getText(text.search.topic));
     },
-    function (session, results) {
+    function(session, results) {
         session.conversationData.searchTerm = results.response;
         ctrl.processSearchRequest(session, function() {
             session.beginDialog('/continue');
@@ -93,7 +95,7 @@ bot.dialog('/search', [
 ]);
 
 bot.dialog('/inspire', [
-    function (session) {
+    function(session) {
         session.conversationData.inspire = true;
         session.conversationData.searchTerm = '';
         ctrl.processSearchRequest(session, function() {
@@ -103,9 +105,9 @@ bot.dialog('/inspire', [
 ]);
 
 bot.dialog('/continue', [
-    function (session) {
+    function(session) {
         if (session.conversationData.found) {
-            var msg;
+            let msg;
             if (session.conversationData.inspire) {
                 msg = utils.getText(text.continue.inspire);
             } else {
@@ -116,7 +118,7 @@ bot.dialog('/continue', [
             session.beginDialog('/restart');
         }
     },
-    function (session, results) {
+    function(session, results) {
         if (utils.textContains(results.response, text.syn.yes)) {
             session.conversationData.retries = 0;
             ctrl.processSearchRequest(session, function() {
@@ -135,11 +137,11 @@ bot.dialog('/continue', [
 ]);
 
 bot.dialog('/restart', [
-    function (session) {
-        var msg = utils.getText(text.restart.ask);
+    function(session) {
+        const msg = utils.getText(text.restart.ask);
         utils.sendQuickRepliesMessage(session, msg, utils.getText(text.restart.replies));
     },
-    function (session, results) {
+    function(session, results) {
         if (utils.textContains(results.response, text.syn.no)) {
             session.conversationData.retries = 0;
             session.beginDialog('/goodbye');
@@ -156,7 +158,7 @@ bot.dialog('/restart', [
 ]);
 
 bot.dialog('/goodbye', [
-    function (session) {
+    function(session) {
         session.conversationData.retries = 0;
         session.send(utils.getText(text.end));
         session.endConversation();
@@ -165,7 +167,7 @@ bot.dialog('/goodbye', [
 
 //TODO https://docs.botframework.com/en-us/core-concepts/userdata#deletinguserdata
 bot.dialog('/reset', [
-    function (session) {
+    function(session) {
         session.userData = {};
         session.conversationData = {};
         session.beginDialog("/");
@@ -173,13 +175,11 @@ bot.dialog('/reset', [
 ]);
 
 bot.use({
-    botbuilder: function (session, callback) {
+    botbuilder: function(session, callback) {
         session.sendTyping();
         ctrl.processUser(session, callback);             
     }
 });
-
-
 
 function retry(session, choices, dialog) {
     if (session.conversationData.retries === 2) {

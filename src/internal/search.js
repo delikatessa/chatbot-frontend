@@ -11,16 +11,16 @@ module.exports = {
 }
 
 function search(session, callback){
-    var order;
+    let order;
     if (session.conversationData.inspire) {
-        var orders = ['date', 'rating', 'relevance', 'title', 'videoCount', 'viewCount'];
+        const orders = ['date', 'rating', 'relevance', 'title', 'videoCount', 'viewCount'];
         order = orders[utils.random(0, 5)];
     } else {
         order = 'relevance';
     }
-    var opts = {
+    const opts = {
         maxResults: 50,
-        key: process.env.GOOGLE_API_KEY,
+        key: "AIzaSyDkQmf5kACDxIzQIpRrBjMYY9rjH9rPngs",
         part: 'snippet',
         order: order,
         chart: 'mostPopular',
@@ -31,59 +31,87 @@ function search(session, callback){
 };
 
 function searchTEDxTalks(session, opts, callback) {
-    opts.channelId = settings.YOUTUBE_TEDXTALKS_CHANNEL_ID;
-    youtube(session.conversationData.searchTerm, opts, function (error, results) {
+    opts.channelId = settings.YOUTUBE_CHANNEL_1;
+    youtube(session.conversationData.searchTerm, opts, function(error, results) {
         if (error) {
             console.log("ERROR.Youtube:", error.message || error);
+        } else {
+            processSearchResults(session, results, callback);
         }
-        processSearchResults(session, results, callback);
     });
 }
 
 function processSearchResults(session, results, callback) {
-    var allTalks = [];
-    for (var i = 0; i < results.length; i++) {
-        allTalks.push(new Talk(results[i]));
+    const allTalks = [];
+    for (let result of results) {
+        allTalks.push(new Talk(result));
     }
-    var num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
-    var talks = [];
+    let num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
+    let talks = [];
     if (session.conversationData.inspire) {        
-        var tempTalks = allTalks.slice();
-        for (var i = 0; i < num; i++) {
-            var j = utils.random(0, tempTalks.length - 1);
+        for (let i = 0; i < num; i++) {
+            let j = utils.random(0, allTalks.length - 1);
             talks.push(allTalks[j]);
-            tempTalks.splice(j, 1);
+            allTalks.splice(j, 1);
         }
-        session.conversationData.inspireTalks = tempTalks;
+        session.conversationData.inspireTalks = allTalks;
     } else {
         talks = allTalks.slice(0, num);
-        var tempTalks = allTalks.slice();
-        tempTalks.splice(0, num);
-        session.conversationData.searchTalks = tempTalks;
+        allTalks.splice(0, num);
+        session.conversationData.searchTalks = allTalks;
     }
     sendResults(session, talks);
-    callback(allTalks);
+    callback();
 }
 
 function sendResults(session, talks) {
-    var attachments = [];
-    for (var i = 0; i < talks.length; i++) {
-        var talk = talks[i];
-        var card = new builder.ThumbnailCard(session)
-            .title(talk.title)
-            .tap(builder.CardAction.openUrl(session, talk.url))
-            .buttons([builder.CardAction.openUrl(session, talk.url, text.search.watch)])
-            .images([builder.CardImage.create(session, talk.thumbnail_url)]);
-        attachments.push(card);
-    }
     if (talks.length === 0) {
         session.send(utils.getText(text.error.noSearchResults, session));
         session.conversationData.found = false;
     } else {
         session.conversationData.found = true;
-        var reply = new builder.Message(session)
-            .attachmentLayout(builder.AttachmentLayout.carousel)
-            .attachments(attachments);
-        session.send(reply);
+
+        //var attachments = [];
+        let elements = [];
+        for (let talk of talks) {
+            //var card = new builder.ThumbnailCard(session)
+            //    .title(talk.title())
+            //    .subtitle(talk.author() + ", " + talk.event())
+            //    .tap(builder.CardAction.openUrl(session, talk.url))
+            //    .buttons([builder.CardAction.openUrl(session, talk.url, text.search.watch)])
+            //attachments.push(card);
+
+            const element = {
+                title: talk.title,
+                subtitle: talk.author + ", " + talk.event,
+                image_url: talk.thumbnail_url,
+                buttons: [{
+                    type: "web_url",
+                    url: talk.url,
+                    title: text.search.watch,
+                    webview_height_ratio: "compact"
+                }]
+            };
+            elements.push(element);
+        }
+        //var reply = new builder.Message(session)
+        //    .attachmentLayout(builder.AttachmentLayout.carousel)
+        //    .attachments(attachments);
+        //session.send(reply);
+
+        const card = {
+            facebook: {
+                attachment: {
+                    type: "template",
+                    image_aspect_ratio: "square",
+                    payload: {
+                        template_type: "generic",
+                        elements: elements
+                    }
+                }
+            }
+        };
+        const msg = new builder.Message(session).sourceEvent(card);
+        session.send(msg);
     }
 }

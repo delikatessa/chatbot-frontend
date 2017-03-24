@@ -4,7 +4,7 @@ var User = require('../classes/user');
 
 pgp.pg.defaults.ssl = true;
 
-var db = pgp(process.env.DATABASE_URL);
+let db = pgp("postgres://vuocyocrfutmsr:826a2dc08f11859bf30baf181fe98e6aaeffde086bcf7964d19f5a9b99f5ca6e@ec2-54-247-119-245.eu-west-1.compute.amazonaws.com:5432/d2ljg1lvknlha0");
 
 exports.getUser = function(item, callback) {
     //var item = new User(channel, external_id);
@@ -26,7 +26,7 @@ exports.updateUser = function(item) {
 }
 
 exports.getTerm = function(text, callback) {
-    var item = new Term(text);
+    const item = new Term(text);
     db.one("INSERT INTO ideabot.term(text, weight) VALUES(${text}, ${weight}) ON CONFLICT ON CONSTRAINT term_key DO UPDATE SET weight = EXCLUDED.weight + 1 RETURNING id;", item)
         .then(function (data) {
             item.id = data.id;
@@ -37,8 +37,8 @@ exports.getTerm = function(text, callback) {
     });
 }
 
-exports.insertUserAction = function(userId, action, termId, callback) {
-    db.none("INSERT INTO ideabot.user_action(user_id, action, term_id) VALUES($1, $2, $3)", [userId, action, termId])
+exports.insertUserAction = function(userId, action, term, talkId, callback) {
+    db.none("INSERT INTO ideabot.user_action(user_id, action, term, talk_id) VALUES($1, $2, $3, $4)", [userId, action, term, talkId])
         .then(function (data) {
             callback();
         })
@@ -47,17 +47,12 @@ exports.insertUserAction = function(userId, action, termId, callback) {
         });
 }
 
-exports.insertTalks = function(talks) {
-    db.tx(function (t) {
-        var queries = talks.map(function (l) {
-            return t.none("INSERT INTO ideabot.talk(source, external_id, category, type, title, author, url, thumbnail_url, published_at) VALUES(${source}, ${external_id}, ${category}, ${type}, ${title}, ${author}, ${url}, ${thumbnail_url}, ${published_at}) ON CONFLICT ON CONSTRAINT talk_key DO NOTHING;", l);
+exports.insertTalk = function(item) {
+    db.none("INSERT INTO ideabot.talk(source, external_id, user_id, category, type, title, speaker, event, url, thumbnail_url, published_at) VALUES(${source}, ${external_id}, ${user_id},  ${category}, ${type}, ${title}, ${speaker}, ${event}, ${url}, ${thumbnail_url}, ${published_at}) ON CONFLICT ON CONSTRAINT talk_key DO NOTHING;", item)
+        .then(function (data) {
+            callback(data.id);
+        })
+        .catch(function (error) {
+            console.log("ERROR.Postgresql:", error.message || error);
         });
-        return t.batch(queries);
-    })
-    .then(function (data) {
-        data = data;
-    })
-    .catch(function (error) {
-        console.log("ERROR.Postgresql:", error.message || error);
-    });
 }
