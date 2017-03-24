@@ -24,4 +24,8 @@ module.exports = class Talk {
     get event() {
         return this._info[2];
     }
+
+    get subtitle() {
+        return this._info[1] + ", " + this._info[2]
+    }
 }

@@ -10,7 +10,7 @@ module.exports = {
     sendResults: sendResults
 }
 
-function search(session, callback){
+function search(session, callback) {
     let order;
     if (session.conversationData.inspire) {
         const orders = ['date', 'rating', 'relevance', 'title', 'videoCount', 'viewCount'];
@@ -32,7 +32,7 @@ function search(session, callback){
 
 function searchTEDxTalks(session, opts, callback) {
     opts.channelId = settings.YOUTUBE_CHANNEL_1;
-    youtube(session.conversationData.searchTerm, opts, function(error, results) {
+    youtube(session.conversationData.searchTerm, opts, function (error, results) {
         if (error) {
             console.log("ERROR.Youtube:", error.message || error);
         } else {
@@ -48,7 +48,7 @@ function processSearchResults(session, results, callback) {
     }
     let num = Math.min(settings.SEARCH_RESULTS_NUMBER, allTalks.length);
     let talks = [];
-    if (session.conversationData.inspire) {        
+    if (session.conversationData.inspire) {
         for (let i = 0; i < num; i++) {
             let j = utils.random(0, allTalks.length - 1);
             talks.push(allTalks[j]);
@@ -68,22 +68,16 @@ function sendResults(session, talks) {
     if (talks.length === 0) {
         session.send(utils.getText(text.error.noSearchResults, session));
         session.conversationData.found = false;
-    } else {
-        session.conversationData.found = true;
-
-        //var attachments = [];
+        return;
+    }
+    session.conversationData.found = true;
+    var msg;
+    if (session.message.source === "facebook") {
         let elements = [];
         for (let talk of talks) {
-            //var card = new builder.ThumbnailCard(session)
-            //    .title(talk.title())
-            //    .subtitle(talk.author() + ", " + talk.event())
-            //    .tap(builder.CardAction.openUrl(session, talk.url))
-            //    .buttons([builder.CardAction.openUrl(session, talk.url, text.search.watch)])
-            //attachments.push(card);
-
             const element = {
                 title: talk.title,
-                subtitle: talk.author + ", " + talk.event,
+                subtitle: talk.subtitle,
                 image_url: talk.thumbnail_url,
                 buttons: [{
                     type: "web_url",
@@ -94,11 +88,6 @@ function sendResults(session, talks) {
             };
             elements.push(element);
         }
-        //var reply = new builder.Message(session)
-        //    .attachmentLayout(builder.AttachmentLayout.carousel)
-        //    .attachments(attachments);
-        //session.send(reply);
-
         const card = {
             facebook: {
                 attachment: {
@@ -111,7 +100,19 @@ function sendResults(session, talks) {
                 }
             }
         };
-        const msg = new builder.Message(session).sourceEvent(card);
-        session.send(msg);
+        msg = new builder.Message(session).sourceEvent(card);
+    } else {
+        let attachments = [];
+        for (let talk of talks) {
+            const card = new builder.ThumbnailCard(session)
+                .title(talk.title)
+                .subtitle(talk.subtitle)
+                .tap(builder.CardAction.openUrl(session, talk.url))
+                .buttons([builder.CardAction.openUrl(session, talk.url, text.search.watch)])
+                .images([builder.CardImage.create(session, talk.thumbnail_url)]);
+            attachments.push(card);
+        }
+        msg = new builder.Message(session).attachmentLayout(builder.AttachmentLayout.carousel).attachments(attachments);        
     }
+    session.send(msg);
 }
